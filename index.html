@@ -106,7 +106,7 @@
       padding: 8px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
     .card {
       background: white;
@@ -140,7 +140,7 @@
       opacity: 0.6;
     }
     .btn {
-      padding: 12px;
+      padding: 14px;
       border: none;
       border-radius: 8px;
       font-size: 16px;
@@ -161,32 +161,28 @@
       background: #0d9488;
       color: white;
     }
-    .btn-success {
-      background: #16a34a;
+    .btn-freeze {
+      background: #3b82f6;
       color: white;
-      flex: 1;
-      width: auto;
+      flex: 2;
+    }
+    .btn-unfreeze {
+      background: #eab308;
+      color: #1e293b;
+      flex: 2;
     }
     .btn-secondary {
       background: #94a3b8;
       color: white;
       flex: 1;
-      width: auto;
-    }
-    .btn-small {
-      padding: 6px 12px;
-      font-size: 12px;
-      background: #3b82f6;
-      color: white;
     }
     .btn-row {
       display: flex;
-      gap: 6px;
-      margin-top: 2px;
+      gap: 8px;
+      margin-top: 4px;
     }
     .video-wrapper {
       width: 100%;
-      max-width: 100%;
       position: relative;
       background: #000;
       border-radius: 8px;
@@ -226,12 +222,16 @@
     .angle-card {
       background: white;
       border-radius: 8px;
-      padding: 8px;
+      padding: 12px;
       border-left: 4px solid #0d9488;
       box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
+    .angle-card.frozen {
+      border-left-color: #3b82f6;
+      background: #eff6ff;
+    }
     .angle-card-label {
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -239,53 +239,9 @@
       margin-bottom: 4px;
     }
     .angle-card-value {
-      font-size: 24px;
+      font-size: 26px;
       font-weight: bold;
       color: #1e293b;
-    }
-    .history-container {
-      max-height: 500px;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    .history-item {
-      background: #f1f5f9;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #e2e8f0;
-      margin-bottom: 8px;
-    }
-    .history-item-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: #1e293b;
-      margin-bottom: 2px;
-    }
-    .history-item-time {
-      font-size: 11px;
-      color: #64748b;
-      margin-bottom: 8px;
-    }
-    .history-item-angles {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4px;
-      font-size: 11px;
-      margin-bottom: 8px;
-    }
-    .history-item-delete {
-      background: #fee2e2;
-      color: #dc2626;
-      border: none;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      cursor: pointer;
-      -webkit-appearance: none;
-      appearance: none;
-    }
-    .history-item-delete:active {
-      opacity: 0.8;
     }
     .modal {
       display: none;
@@ -317,30 +273,6 @@
     @keyframes slideUp {
       from { transform: translateY(100%); }
       to { transform: translateY(0); }
-    }
-    .modal-content h2 {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 16px;
-      color: #1e293b;
-    }
-    .modal-content input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      font-size: 16px;
-      margin-bottom: 16px;
-      -webkit-appearance: none;
-      appearance: none;
-    }
-    .modal-buttons {
-      display: flex;
-      gap: 8px;
-    }
-    .modal-buttons .btn {
-      flex: 1;
-      margin: 0;
     }
     .exercise-list {
       margin-bottom: 16px;
@@ -374,15 +306,6 @@
     .exercise-btn-delete {
       background: #fee2e2;
       color: #dc2626;
-      border: none;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      cursor: pointer;
-    }
-    .exercise-btn-edit {
-      background: #dbeafe;
-      color: #0284c7;
       border: none;
       padding: 4px 8px;
       border-radius: 4px;
@@ -457,18 +380,8 @@
         <div class="angles-grid" id="anglesGrid">
           </div>
         <div class="btn-row">
-          <button class="btn btn-success" id="saveBtn">💾 Save</button>
+          <button class="btn btn-freeze" id="freezeBtn">🥶 Freeze</button>
           <button class="btn btn-secondary" id="stopBtn">Stop</button>
-        </div>
-      </div>
-
-      <div id="historyView" class="hidden">
-        <div class="card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h2 style="font-size: 15px; font-weight: 600; margin: 0;">📊 AI Data Logs</h2>
-            <button class="btn-small" id="exportBtn">Export CSV</button>
-          </div>
-          <div class="history-container" id="historyList"></div>
         </div>
       </div>
 
@@ -490,20 +403,15 @@
   <div class="modal" id="exerciseModal">
     <div class="modal-content">
       <h2>Manage Exercises</h2>
-      
       <div class="exercise-list" id="exerciseList"></div>
-
       <h3 style="font-size: 14px; font-weight: 600; margin: 16px 0 12px 0;">Add New Exercise</h3>
       <input type="text" id="newExerciseName" placeholder="Exercise name">
-      
-      <label style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px; display: block;">Select Angles:</label>
       <div class="checkbox-group">
         <label><input type="checkbox" id="cb-leftShoulder" value="leftShoulder"> Left Shoulder</label>
         <label><input type="checkbox" id="cb-rightShoulder" value="rightShoulder"> Right Shoulder</label>
         <label><input type="checkbox" id="cb-leftKnee" value="leftKnee"> Left Knee</label>
         <label><input type="checkbox" id="cb-rightKnee" value="rightKnee"> Right Knee</label>
       </div>
-
       <div class="modal-buttons">
         <button class="btn btn-primary" id="addExerciseBtn">Add Exercise</button>
         <button class="btn btn-secondary" id="closeExerciseBtn">Done</button>
@@ -513,18 +421,17 @@
 
   <script>
     let athletes = JSON.parse(localStorage.getItem('athletes')) || [];
-    let testHistory = JSON.parse(localStorage.getItem('testHistory')) || [];
     let currentAthlete = '';
     let currentExercise = null;
     let testingActive = false;
+    let isFrozen = false;
     let videoStream = null;
     let poseDetector = null;
-    let editingExerciseId = null;
 
     const defaultExercises = [
       { id: 1, name: 'Shoulder Abduction (Back View)', angles: ['leftShoulder', 'rightShoulder'] },
-      { id: 2, name: 'Shoulder Internal Rotation (Side)', angles: ['leftShoulder', 'rightShoulder'] },
-      { id: 3, name: 'Shoulder External Rotation (Side)', angles: ['leftShoulder', 'rightShoulder'] }
+      { id: 2, name: 'Shoulder Rotation (Side View)', angles: ['leftShoulder', 'rightShoulder'] },
+      { id: 3, name: 'Knee Flexion / Squat (Side View)', angles: ['leftKnee', 'rightKnee'] }
     ];
 
     let exercises = JSON.parse(localStorage.getItem('exercises')) || defaultExercises;
@@ -535,15 +442,13 @@
     const cancelBtn = document.getElementById('cancelBtn');
     const startBtn = document.getElementById('startBtn');
     const stopBtn = document.getElementById('stopBtn');
-    const saveBtn = document.getElementById('saveBtn');
-    const exportBtn = document.getElementById('exportBtn');
+    const freezeBtn = document.getElementById('freezeBtn');
     const athleteSelect = document.getElementById('athleteSelect');
     const exerciseSelect = document.getElementById('exerciseSelect');
     const newAthleteName = document.getElementById('newAthleteName');
     const athleteModal = document.getElementById('athleteModal');
     const exerciseModal = document.getElementById('exerciseModal');
     const testingView = document.getElementById('testingView');
-    const historyView = document.getElementById('historyView');
     const videoFeed = document.getElementById('videoFeed');
     const skeletonCanvas = document.getElementById('skeletonCanvas');
     const statusLabel = document.getElementById('statusLabel');
@@ -579,14 +484,10 @@
     });
 
     addAthleteBtn.addEventListener('click', addAthlete);
-    newAthleteName.addEventListener('keypress', (e) => { if (e.key === 'Enter') addAthlete(); });
-    addExerciseBtn.addEventListener('click', addOrUpdateExercise);
-    newExerciseName.addEventListener('keypress', (e) => { if (e.key === 'Enter') addOrUpdateExercise(); });
-
+    addExerciseBtn.addEventListener('click', addExercise);
     startBtn.addEventListener('click', startTest);
     stopBtn.addEventListener('click', stopTest);
-    saveBtn.addEventListener('click', saveTest);
-    exportBtn.addEventListener('click', exportData);
+    freezeBtn.addEventListener('click', toggleFreeze);
 
     athleteSelect.addEventListener('change', (e) => { currentAthlete = e.target.value; });
     exerciseSelect.addEventListener('change', (e) => {
@@ -604,7 +505,7 @@
       const minConfidence = 0.2; 
       let detectedCount = 0;
 
-      ctx.strokeStyle = '#00ff00';
+      ctx.strokeStyle = isFrozen ? '#3b82f6' : '#00ff00'; 
       ctx.lineWidth = 4;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
@@ -626,7 +527,7 @@
 
       keypoints.forEach((kp) => {
         if (kp.score > minConfidence) {
-          ctx.fillStyle = kp.score > 0.5 ? '#00ff00' : '#ffaa00';
+          ctx.fillStyle = isFrozen ? '#3b82f6' : (kp.score > 0.5 ? '#00ff00' : '#ffaa00');
           ctx.beginPath();
           ctx.arc(kp.x, kp.y, 6, 0, 2 * Math.PI);
           ctx.fill();
@@ -637,31 +538,25 @@
         }
       });
 
-      ctx.fillStyle = 'rgba(0, 255, 0, 0.95)';
+      ctx.fillStyle = isFrozen ? '#3b82f6' : '#00ff00';
       ctx.font = 'bold 14px Arial';
-      ctx.fillText('🎯 Skeleton Detected', 15, 30);
-      ctx.font = '12px Arial';
-      ctx.fillText(`Joints: ${detectedCount}`, 15, 50);
+      ctx.fillText(isFrozen ? '🥶 FRAME FROZEN' : '🎯 Skeleton Tracking', 15, 30);
     }
 
     async function init() {
       populateAthletes();
       populateExercises();
-      if (testHistory.length > 0) showHistory();
       
       try {
         await tf.ready();
-        const detectorConfig = {
+        poseDetector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, {
           modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
-        };
-        poseDetector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, detectorConfig);
+        });
         statusLabel.textContent = "AI Live Tracking Ready";
         startBtn.disabled = false;
         startBtn.textContent = "🎥 Start AI Test";
       } catch (err) {
-        console.error('Pose detection error:', err);
-        statusLabel.textContent = "AI Engine Load Error";
-        alert("Failed to initialize AI. Check console for details.");
+        statusLabel.textContent = "AI Load Error";
       }
     }
 
@@ -693,28 +588,10 @@
             <div class="exercise-item-name">${ex.name}</div>
             <div class="exercise-item-angles">Angles: ${ex.angles.join(', ')}</div>
           </div>
-          <div class="exercise-item-buttons">
-            <button class="exercise-btn-edit" onclick="editExercise(${ex.id})">✏️</button>
-            <button class="exercise-btn-delete" onclick="deleteExercise(${ex.id})">🗑️</button>
-          </div>
+          <button class="exercise-btn-delete" onclick="deleteExercise(${ex.id})">🗑️</button>
         </div>
       `).join('');
     }
-
-    window.editExercise = function(id) {
-      const exercise = exercises.find(ex => ex.id === id);
-      if (!exercise) return;
-
-      editingExerciseId = id;
-      newExerciseName.value = exercise.name;
-      
-      document.getElementById('cb-leftShoulder').checked = exercise.angles.includes('leftShoulder');
-      document.getElementById('cb-rightShoulder').checked = exercise.angles.includes('rightShoulder');
-      document.getElementById('cb-leftKnee').checked = exercise.angles.includes('leftKnee');
-      document.getElementById('cb-rightKnee').checked = exercise.angles.includes('rightKnee');
-
-      addExerciseBtn.textContent = 'Update Exercise';
-    };
 
     window.deleteExercise = function(id) {
       if (confirm('Delete this exercise?')) {
@@ -725,7 +602,7 @@
       }
     };
 
-    function addOrUpdateExercise() {
+    function addExercise() {
       const name = newExerciseName.value.trim();
       if (!name) return alert('Enter exercise name');
 
@@ -737,17 +614,10 @@
 
       if (angles.length === 0) return alert('Select at least one angle');
 
-      if (editingExerciseId) {
-        const idx = exercises.findIndex(ex => ex.id === editingExerciseId);
-        exercises[idx] = { id: editingExerciseId, name, angles };
-        editingExerciseId = null;
-        addExerciseBtn.textContent = 'Add Exercise';
-      } else {
-        const newId = Math.max(...exercises.map(ex => ex.id), 0) + 1;
-        exercises.push({ id: newId, name, angles });
-      }
-
+      const newId = Math.max(...exercises.map(ex => ex.id), 0) + 1;
+      exercises.push({ id: newId, name, angles });
       localStorage.setItem('exercises', JSON.stringify(exercises));
+      
       newExerciseName.value = '';
       document.querySelectorAll('.checkbox-group input').forEach(cb => cb.checked = false);
       populateExercises();
@@ -757,7 +627,6 @@
     function addAthlete() {
       const name = newAthleteName.value.trim();
       if (!name) return alert('Please enter a name');
-      if (athletes.includes(name)) return alert('Athlete already exists');
       athletes.push(name);
       localStorage.setItem('athletes', JSON.stringify(athletes));
       currentAthlete = name;
@@ -769,7 +638,6 @@
 
     function renderAnglesGrid() {
       if (!currentExercise) return;
-
       anglesGrid.innerHTML = currentExercise.angles.map(angleKey => {
         const labels = {
           leftShoulder: 'Left Shoulder',
@@ -777,9 +645,8 @@
           leftKnee: 'Left Knee',
           rightKnee: 'Right Knee'
         };
-
         return `
-          <div class="angle-card">
+          <div class="angle-card" id="card-${angleKey}">
             <div class="angle-card-label">${labels[angleKey]}</div>
             <div class="angle-card-value" id="${angleKey}Angle">—</div>
           </div>
@@ -792,9 +659,13 @@
       if (!currentExercise) return alert('Select an exercise first');
 
       testingActive = true;
+      isFrozen = false;
+      
+      freezeBtn.className = "btn btn-freeze";
+      freezeBtn.textContent = "🥶 Freeze";
+      
       startBtn.classList.add('hidden');
       testingView.classList.remove('hidden');
-      historyView.classList.add('hidden');
       athleteSelect.disabled = true;
       exerciseSelect.disabled = true;
 
@@ -810,21 +681,20 @@
         
         videoFeed.onloadedmetadata = () => {
           videoFeed.play();
-          
           skeletonCanvas.width = videoFeed.videoWidth;
           skeletonCanvas.height = videoFeed.videoHeight;
           canvasCtx = skeletonCanvas.getContext('2d');
-          
           trackPoseLoop();
         };
       } catch (err) {
-        alert('Camera permissions required.');
+        alert('Camera required.');
         stopTest();
       }
     }
 
     function stopTest() {
       testingActive = false;
+      isFrozen = false;
       if (videoStream) videoStream.getTracks().forEach((t) => t.stop());
       startBtn.classList.remove('hidden');
       testingView.classList.add('hidden');
@@ -832,8 +702,29 @@
       exerciseSelect.disabled = false;
     }
 
-    async function trackPoseLoop() {
+    function toggleFreeze() {
       if (!testingActive) return;
+      
+      if (!isFrozen) {
+        isFrozen = true;
+        videoFeed.pause(); 
+        freezeBtn.textContent = "🔄 Unfreeze";
+        freezeBtn.className = "btn btn-unfreeze";
+        
+        document.querySelectorAll('.angle-card').forEach(card => card.classList.add('frozen'));
+      } else {
+        isFrozen = false;
+        videoFeed.play();
+        freezeBtn.textContent = "🥶 Freeze";
+        freezeBtn.className = "btn btn-freeze";
+        
+        document.querySelectorAll('.angle-card').forEach(card => card.classList.remove('frozen'));
+        trackPoseLoop(); 
+      }
+    }
+
+    async function trackPoseLoop() {
+      if (!testingActive || isFrozen) return;
       try {
         const poses = await poseDetector.estimatePoses(videoFeed, { flipHorizontal: false });
         if (poses && poses.length > 0) {
@@ -844,70 +735,40 @@
           const kp = {};
           keypoints.forEach(item => { kp[item.name] = item; });
 
-          updateShoulderRotationAngle('leftShoulder', kp['left_shoulder'], kp['left_elbow'], kp['left_wrist']);
-          updateShoulderRotationAngle('rightShoulder', kp['right_shoulder'], kp['right_elbow'], kp['right_wrist']);
+          updateShoulderAngle('leftShoulder', kp['left_elbow'], kp['left_shoulder'], kp['left_hip']);
+          updateShoulderAngle('rightShoulder', kp['right_elbow'], kp['right_shoulder'], kp['right_hip']);
           updateJointAngle('leftKnee', kp['left_ankle'], kp['left_knee'], kp['left_hip']);
           updateJointAngle('rightKnee', kp['right_ankle'], kp['right_knee'], kp['right_hip']);
         }
       } catch (e) {
-        console.error('Pose estimation error:', e);
+        console.error(e);
       }
-      if (testingActive) requestAnimationFrame(trackPoseLoop);
+      if (testingActive && !isFrozen) requestAnimationFrame(trackPoseLoop);
     }
 
-    function updateShoulderRotationAngle(elementId, shoulder, elbow, wrist) {
-      const angle = calculateForearmRotationAngle(shoulder, elbow, wrist);
+    function updateShoulderAngle(elementId, elbow, shoulder, hip) {
+      const minConfidence = 0.35;
       const el = document.getElementById(elementId + 'Angle');
-      if (angle !== null && el) {
+      if (!el) return;
+
+      if (elbow && shoulder && hip && elbow.score > minConfidence && shoulder.score > minConfidence && hip.score > minConfidence) {
+        const angle = calculateThreePointAngle(elbow, shoulder, hip);
         el.textContent = Math.round(angle) + '°';
-      } else if (el) {
+      } else {
         el.textContent = '—';
       }
     }
 
-    function calculateForearmRotationAngle(shoulder, elbow, wrist) {
-      const minConfidence = 0.35;
-      if (!shoulder || !elbow || !wrist || 
-          shoulder.score < minConfidence || elbow.score < minConfidence || wrist.score < minConfidence) {
-        return null;
-      }
-
-      const forearm = {
-        x: wrist.x - elbow.x,
-        y: wrist.y - elbow.y
-      };
-
-      const vertical = { x: 0, y: 1 };
-
-      const forearmMagnitude = Math.sqrt(forearm.x * forearm.x + forearm.y * forearm.y);
-      if (forearmMagnitude === 0) return null;
-
-      const forearmNorm = {
-        x: forearm.x / forearmMagnitude,
-        y: forearm.y / forearmMagnitude
-      };
-
-      const cosAngle = forearmNorm.x * vertical.x + forearmNorm.y * vertical.y;
-      const clampedCos = Math.max(-1, Math.min(1, cosAngle));
-      const angleRad = Math.acos(clampedCos);
-      let angleDeg = (angleRad * 180.0) / Math.PI;
-
-      if (angleDeg > 180) {
-        angleDeg = 360 - angleDeg;
-      }
-
-      return angleDeg;
-    }
-
     function updateJointAngle(elementId, pA, pB, pC) {
       const minConfidence = 0.35;
+      const el = document.getElementById(elementId + 'Angle');
+      if (!el) return;
+
       if (pA && pB && pC && pA.score > minConfidence && pB.score > minConfidence && pC.score > minConfidence) {
         const angle = calculateThreePointAngle(pA, pB, pC);
-        const el = document.getElementById(elementId + 'Angle');
-        if (el) el.textContent = Math.round(angle) + '°';
+        el.textContent = Math.round(angle) + '°';
       } else {
-        const el = document.getElementById(elementId + 'Angle');
-        if (el) el.textContent = '—';
+        el.textContent = '—';
       }
     }
 
@@ -915,92 +776,7 @@
       let radians = Math.atan2(C.y - B.y, C.x - B.x) - Math.atan2(A.y - B.y, A.x - B.x);
       let angle = Math.abs((radians * 180.0) / Math.PI);
       if (angle > 180.0) angle = 360.0 - angle;
-      angle = Math.min(angle, 180);
-      return angle;
-    }
-
-    function saveTest() {
-      if (!currentExercise) return alert('No exercise selected');
-
-      const record = {
-        id: Date.now(),
-        athlete: currentAthlete,
-        exercise: currentExercise.name,
-        timestamp: new Date().toLocaleString(),
-        angles: {}
-      };
-
-      currentExercise.angles.forEach(angleKey => {
-        const el = document.getElementById(angleKey + 'Angle');
-        record.angles[angleKey] = el ? parseInt(el.textContent) || 0 : 0;
-      });
-
-      testHistory.push(record);
-      localStorage.setItem('testHistory', JSON.stringify(testHistory));
-      alert('✅ Test Saved!');
-      stopTest();
-      showHistory();
-    }
-
-    function showHistory() {
-      startBtn.classList.add('hidden');
-      testingView.classList.add('hidden');
-      historyView.classList.remove('hidden');
-      renderHistory();
-    }
-
-    function renderHistory() {
-      const list = document.getElementById('historyList');
-      if (testHistory.length === 0) {
-        list.innerHTML = '<p>No saved tests yet.</p>';
-        return;
-      }
-      list.innerHTML = testHistory
-        .slice()
-        .reverse()
-        .map((r) => `
-          <div class="history-item">
-            <div class="history-item-name">${r.athlete}</div>
-            <div style="font-size: 11px; color: #0d9488; margin-bottom: 4px; font-weight: 500;">${r.exercise}</div>
-            <div class="history-item-time">${r.timestamp}</div>
-            <div class="history-item-angles">
-              ${Object.entries(r.angles).map(([k, v]) => {
-                const labels = { leftShoulder: 'L Shoulder', rightShoulder: 'R Shoulder', leftKnee: 'L Knee', rightKnee: 'R Knee' };
-                return `<div>${labels[k]}: ${v}°</div>`;
-              }).join('')}
-            </div>
-            <button class="history-item-delete" onclick="deleteRecord(${r.id})">Delete</button>
-          </div>
-        `).join('');
-    }
-
-    window.deleteRecord = function(id) {
-      if (confirm('Delete this test?')) {
-        testHistory = testHistory.filter((r) => r.id !== id);
-        localStorage.setItem('testHistory', JSON.stringify(testHistory));
-        renderHistory();
-      }
-    };
-
-    function exportData() {
-      if (testHistory.length === 0) return alert('No data to export');
-      
-      let csv = 'Athlete,Exercise,Date,';
-      const allAngles = new Set();
-      testHistory.forEach(r => Object.keys(r.angles).forEach(k => allAngles.add(k)));
-      csv += Array.from(allAngles).join(',') + '\n';
-
-      csv += testHistory.map((r) => {
-        const angleValues = Array.from(allAngles).map(k => r.angles[k] || '-').join(',');
-        return `"${r.athlete}","${r.exercise}","${r.timestamp}",${angleValues}`;
-      }).join('\n');
-
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `ai-mobility-metrics-${new Date().toISOString().split('T')[0]}.csv`;
-      a.click();
+      return Math.min(angle, 180);
     }
 
     init();
