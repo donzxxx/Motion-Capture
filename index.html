@@ -201,6 +201,7 @@
       pointer-events: none;
       width: 100%;
       height: 100%;
+      object-fit: cover; /* Keeps matching constraints with video aspect shifts */
     }
     .angles-grid {
       display: grid;
@@ -320,7 +321,7 @@
         <div class="header-icon">🤖</div>
         <div class="header-text">
           <h1>AI Mobility Tester</h1>
-          <p id="statusLabel">Loading AI Model...</p>
+          <p id="statusLabel">Loading High-Precision AI...</p>
         </div>
       </div>
       <div class="header-buttons">
@@ -344,7 +345,7 @@
         </select>
       </div>
 
-      <button class="btn btn-primary" id="startBtn" disabled>⏳ Initializing AI...</button>
+      <button class="btn btn-primary" id="startBtn" disabled>⏳ Loading Precision Models...</button>
 
       <div id="testingView" class="hidden">
         <div class="video-wrapper">
@@ -476,7 +477,7 @@
       const ctx = canvasCtx;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const minConfidence = 0.2; 
+      const minConfidence = 0.25; 
 
       ctx.strokeStyle = isFrozen ? '#3b82f6' : '#00ff00';
       ctx.lineWidth = 4;
@@ -500,17 +501,17 @@
         if (kp.score > minConfidence) {
           ctx.fillStyle = isFrozen ? '#3b82f6' : (kp.score > 0.5 ? '#00ff00' : '#ffaa00');
           ctx.beginPath();
-          ctx.arc(kp.x, kp.y, 8, 0, 2 * Math.PI);
+          ctx.arc(kp.x, kp.y, 7, 0, 2 * Math.PI);
           ctx.fill();
           ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 3;
+          ctx.lineWidth = 2.5;
           ctx.stroke();
         }
       });
 
       ctx.fillStyle = isFrozen ? 'rgba(59, 130, 246, 0.95)' : 'rgba(0, 255, 0, 0.95)';
       ctx.font = 'bold 14px Arial';
-      ctx.fillText(isFrozen ? '🥶 Frame Frozen' : '🎯 Skeleton Detected', 10, 30);
+      ctx.fillText(isFrozen ? '🥶 Frame Frozen' : '🎯 Skeleton Tracking Active', 14, 30);
     }
 
     async function init() {
@@ -519,9 +520,10 @@
       
       try {
         await tf.ready();
-        const detectorConfig = { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING };
+        // Upgraded back to THUNDER model for maximum dynamic tracking precision
+        const detectorConfig = { modelType: poseDetection.movenet.modelType.SINGLEPOSE_THUNDER };
         poseDetector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, detectorConfig);
-        statusLabel.textContent = "AI Live Tracking Ready";
+        statusLabel.textContent = "AI Precision Tracking Ready";
         startBtn.disabled = false;
         startBtn.textContent = "🎥 Start AI Test";
       } catch (err) {
@@ -631,13 +633,15 @@
       renderAnglesGrid();
 
       try {
+        // Boosted request values to High Definition resolution
         videoStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment', width: 640, height: 480 },
+          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
           audio: false,
         });
         videoFeed.srcObject = videoStream;
         videoFeed.onloadedmetadata = () => {
           videoFeed.play();
+          // Anchor exact stream measurements to clear up scaling artifacts
           skeletonCanvas.width = videoFeed.videoWidth;
           skeletonCanvas.height = videoFeed.videoHeight;
           canvasCtx = skeletonCanvas.getContext('2d');
