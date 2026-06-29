@@ -28,7 +28,7 @@
       color: #1e293b;
       -webkit-touch-callout: none;
     }
-    input, textarea {
+    input {
       -webkit-user-select: text;
       user-select: text;
     }
@@ -92,8 +92,6 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      -webkit-appearance: none;
-      appearance: none;
     }
     .header-btn:active {
       opacity: 0.8;
@@ -102,7 +100,6 @@
       flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
       padding: 8px;
       display: flex;
       flex-direction: column;
@@ -127,17 +124,11 @@
       border: 1px solid #e2e8f0;
       border-radius: 6px;
       font-size: 16px;
-      -webkit-appearance: none;
-      appearance: none;
       background-color: white;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23334155' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 10px center;
       padding-right: 30px;
-    }
-    .card select:disabled {
-      background-color: #f1f5f9;
-      opacity: 0.6;
     }
     .btn {
       padding: 12px;
@@ -150,8 +141,6 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      -webkit-appearance: none;
-      appearance: none;
       width: 100%;
     }
     .btn:active {
@@ -171,23 +160,10 @@
       color: #1e293b;
       flex: 2;
     }
-    .btn-success {
-      background: #16a34a;
-      color: white;
-      flex: 1;
-      width: auto;
-    }
     .btn-secondary {
       background: #94a3b8;
       color: white;
       flex: 1;
-      width: auto;
-    }
-    .btn-small {
-      padding: 6px 12px;
-      font-size: 12px;
-      background: #3b82f6;
-      color: white;
     }
     .btn-row {
       display: flex;
@@ -196,7 +172,6 @@
     }
     .video-wrapper {
       width: 100%;
-      max-width: 100%;
       position: relative;
       background: #000;
       border-radius: 8px;
@@ -233,7 +208,7 @@
     .angle-card {
       background: white;
       border-radius: 8px;
-      padding: 8px;
+      padding: 12px;
       border-left: 4px solid #0d9488;
       box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
@@ -242,7 +217,7 @@
       background: #eff6ff;
     }
     .angle-card-label {
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -250,53 +225,9 @@
       margin-bottom: 4px;
     }
     .angle-card-value {
-      font-size: 24px;
+      font-size: 28px;
       font-weight: bold;
       color: #1e293b;
-    }
-    .history-container {
-      max-height: 500px;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    .history-item {
-      background: #f1f5f9;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #e2e8f0;
-      margin-bottom: 8px;
-    }
-    .history-item-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: #1e293b;
-      margin-bottom: 2px;
-    }
-    .history-item-time {
-      font-size: 11px;
-      color: #64748b;
-      margin-bottom: 8px;
-    }
-    .history-item-angles {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4px;
-      font-size: 11px;
-      margin-bottom: 8px;
-    }
-    .history-item-delete {
-      background: #fee2e2;
-      color: #dc2626;
-      border: none;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      cursor: pointer;
-      -webkit-appearance: none;
-      appearance: none;
-    }
-    .history-item-delete:active {
-      opacity: 0.8;
     }
     .modal {
       display: none;
@@ -320,20 +251,12 @@
       padding: 20px;
       width: 100%;
       max-height: 80vh;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-      animation: slideUp 0.3s ease-out;
       overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
     }
     .modal-content h2 {
       font-size: 18px;
       font-weight: 600;
       margin-bottom: 16px;
-      color: #1e293b;
     }
     .modal-content input {
       width: 100%;
@@ -342,16 +265,10 @@
       border-radius: 6px;
       font-size: 16px;
       margin-bottom: 16px;
-      -webkit-appearance: none;
-      appearance: none;
     }
     .modal-buttons {
       display: flex;
       gap: 8px;
-    }
-    .modal-buttons .btn {
-      flex: 1;
-      margin: 0;
     }
     .exercise-list {
       margin-bottom: 16px;
@@ -366,39 +283,13 @@
       justify-content: space-between;
       align-items: center;
     }
-    .exercise-item-info {
-      flex: 1;
-    }
     .exercise-item-name {
       font-weight: 600;
       font-size: 14px;
-      margin-bottom: 4px;
     }
     .exercise-item-angles {
       font-size: 12px;
       color: #64748b;
-    }
-    .exercise-item-buttons {
-      display: flex;
-      gap: 6px;
-    }
-    .exercise-btn-delete {
-      background: #fee2e2;
-      color: #dc2626;
-      border: none;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      cursor: pointer;
-    }
-    .exercise-btn-edit {
-      background: #dbeafe;
-      color: #0284c7;
-      border: none;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      cursor: pointer;
     }
     .checkbox-group {
       margin: 12px 0;
@@ -411,19 +302,12 @@
       align-items: center;
       gap: 8px;
       margin-bottom: 8px;
-      font-weight: normal;
-      color: #334155;
-    }
-    .checkbox-group input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
     }
     .hidden {
       display: none !important;
     }
     .spacer {
-      height: 4px;
+      height: 10px;
     }
   </style>
 </head>
@@ -465,22 +349,10 @@
           <video id="videoFeed" autoplay playsinline muted></video>
           <canvas id="skeletonCanvas"></canvas>
         </div>
-        <div class="angles-grid" id="anglesGrid">
-          </div>
+        <div class="angles-grid" id="anglesGrid"></div>
         <div class="btn-row">
           <button class="btn btn-freeze" id="freezeBtn">🥶 Freeze</button>
-          <button class="btn btn-success" id="saveBtn">💾 Save</button>
           <button class="btn btn-secondary" id="stopBtn">Stop</button>
-        </div>
-      </div>
-
-      <div id="historyView" class="hidden">
-        <div class="card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h2 style="font-size: 15px; font-weight: 600; margin: 0;">📊 AI Data Logs</h2>
-            <button class="btn-small" id="exportBtn">Export CSV</button>
-          </div>
-          <div class="history-container" id="historyList"></div>
         </div>
       </div>
 
@@ -502,12 +374,9 @@
   <div class="modal" id="exerciseModal">
     <div class="modal-content">
       <h2>Manage Exercises</h2>
-      
       <div class="exercise-list" id="exerciseList"></div>
-
       <h3 style="font-size: 14px; font-weight: 600; margin: 16px 0 12px 0;">Add New Exercise</h3>
       <input type="text" id="newExerciseName" placeholder="Exercise name">
-      
       <label style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px; display: block;">Select Angles:</label>
       <div class="checkbox-group">
         <label><input type="checkbox" id="cb-leftShoulder" value="leftShoulder"> Left Shoulder</label>
@@ -515,7 +384,6 @@
         <label><input type="checkbox" id="cb-leftKnee" value="leftKnee"> Left Knee</label>
         <label><input type="checkbox" id="cb-rightKnee" value="rightKnee"> Right Knee</label>
       </div>
-
       <div class="modal-buttons">
         <button class="btn btn-primary" id="addExerciseBtn">Add Exercise</button>
         <button class="btn btn-secondary" id="closeExerciseBtn">Done</button>
@@ -525,7 +393,6 @@
 
   <script>
     let athletes = JSON.parse(localStorage.getItem('athletes')) || [];
-    let testHistory = JSON.parse(localStorage.getItem('testHistory')) || [];
     let currentAthlete = '';
     let currentExercise = null;
     let testingActive = false;
@@ -536,8 +403,8 @@
 
     const defaultExercises = [
       { id: 1, name: 'Shoulder Abduction (Back View)', angles: ['leftShoulder', 'rightShoulder'] },
-      { id: 2, name: 'Shoulder Internal Rotation (Side View)', angles: ['leftShoulder', 'rightShoulder'] },
-      { id: 3, name: 'Shoulder External Rotation (Side View)', angles: ['leftShoulder', 'rightShoulder'] }
+      { id: 2, name: 'Shoulder Internal Rotation (Side)', angles: ['leftShoulder', 'rightShoulder'] },
+      { id: 3, name: 'Shoulder External Rotation (Side)', angles: ['leftShoulder', 'rightShoulder'] }
     ];
 
     let exercises = JSON.parse(localStorage.getItem('exercises')) || defaultExercises;
@@ -549,15 +416,12 @@
     const startBtn = document.getElementById('startBtn');
     const stopBtn = document.getElementById('stopBtn');
     const freezeBtn = document.getElementById('freezeBtn');
-    const saveBtn = document.getElementById('saveBtn');
-    const exportBtn = document.getElementById('exportBtn');
     const athleteSelect = document.getElementById('athleteSelect');
     const exerciseSelect = document.getElementById('exerciseSelect');
     const newAthleteName = document.getElementById('newAthleteName');
     const athleteModal = document.getElementById('athleteModal');
     const exerciseModal = document.getElementById('exerciseModal');
     const testingView = document.getElementById('testingView');
-    const historyView = document.getElementById('historyView');
     const videoFeed = document.getElementById('videoFeed');
     const skeletonCanvas = document.getElementById('skeletonCanvas');
     const statusLabel = document.getElementById('statusLabel');
@@ -572,11 +436,6 @@
       [5, 6], [5, 7], [7, 9], [6, 8], [8, 10], [5, 11], [6, 12], [11, 12],
       [11, 13], [13, 15], [12, 14], [14, 16]
     ];
-
-    // Left body indices: Shoulder (5), Elbow (7), Wrist (9), Hip (11), Knee (13), Ankle (15)
-    const leftSideIndices = [5, 7, 9, 11, 13, 15];
-    // Right body indices: Shoulder (6), Elbow (8), Wrist (10), Hip (12), Knee (14), Ankle (16)
-    const rightSideIndices = [6, 8, 10, 12, 14, 16];
 
     addBtn.addEventListener('click', () => {
       athleteModal.classList.add('show');
@@ -600,13 +459,10 @@
     addAthleteBtn.addEventListener('click', addAthlete);
     newAthleteName.addEventListener('keypress', (e) => { if (e.key === 'Enter') addAthlete(); });
     addExerciseBtn.addEventListener('click', addOrUpdateExercise);
-    newExerciseName.addEventListener('keypress', (e) => { if (e.key === 'Enter') addOrUpdateExercise(); });
 
     startBtn.addEventListener('click', startTest);
     stopBtn.addEventListener('click', stopTest);
     freezeBtn.addEventListener('click', toggleFreeze);
-    saveBtn.addEventListener('click', saveTest);
-    exportBtn.addEventListener('click', exportData);
 
     athleteSelect.addEventListener('change', (e) => { currentAthlete = e.target.value; });
     exerciseSelect.addEventListener('change', (e) => {
@@ -615,10 +471,8 @@
 
     function drawSkeleton(keypoints) {
       if (!canvasCtx || !skeletonCanvas) return;
-
       const canvas = skeletonCanvas;
       const ctx = canvasCtx;
-
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const minConfidence = 0.2; 
@@ -633,16 +487,10 @@
         if (start < keypoints.length && end < keypoints.length) {
           const startKp = keypoints[start];
           const endKp = keypoints[end];
-
-          if (startKp.score > minConfidence && endKp.score > minConfidence && !startKp.hidden && !endKp.hidden) {
-            const startX = startKp.x * canvas.width;
-            const startY = startKp.y * canvas.height;
-            const endX = endKp.x * canvas.width;
-            const endY = endKp.y * canvas.height;
-
+          if (startKp.score > minConfidence && endKp.score > minConfidence) {
             ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(endX, endY);
+            ctx.moveTo(startKp.x * canvas.width, startKp.y * canvas.height);
+            ctx.lineTo(endKp.x * canvas.width, endKp.y * canvas.height);
             ctx.stroke();
             detectedCount++;
           }
@@ -650,15 +498,11 @@
       });
 
       keypoints.forEach((kp) => {
-        if (kp.score > minConfidence && !kp.hidden) {
-          const x = kp.x * canvas.width;
-          const y = kp.y * canvas.height;
-
+        if (kp.score > minConfidence) {
           ctx.fillStyle = isFrozen ? '#3b82f6' : (kp.score > 0.5 ? '#00ff00' : '#ffaa00');
           ctx.beginPath();
-          ctx.arc(x, y, 8, 0, 2 * Math.PI);
+          ctx.arc(kp.x * canvas.width, kp.y * canvas.height, 8, 0, 2 * Math.PI);
           ctx.fill();
-
           ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 3;
           ctx.stroke();
@@ -668,48 +512,40 @@
       ctx.fillStyle = isFrozen ? 'rgba(59, 130, 246, 0.95)' : 'rgba(0, 255, 0, 0.95)';
       ctx.font = 'bold 14px Arial';
       ctx.fillText(isFrozen ? '🥶 Frame Frozen' : '🎯 Skeleton Detected', 10, 30);
-      ctx.font = '12px Arial';
-      ctx.fillText(`Joints tracked: ${detectedCount}`, 10, 50);
     }
 
     async function init() {
       populateAthletes();
       populateExercises();
-      if (testHistory.length > 0) showHistory();
       
       try {
         await tf.ready();
-        const detectorConfig = {
-          modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
-        };
+        const detectorConfig = { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING };
         poseDetector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, detectorConfig);
         statusLabel.textContent = "AI Live Tracking Ready";
         startBtn.disabled = false;
         startBtn.textContent = "🎥 Start AI Test";
       } catch (err) {
-        console.error('Pose detection error:', err);
-        statusLabel.textContent = "AI Engine Load Error";
-        alert("Failed to initialize AI. Check console for details.");
+        console.error(err);
+        statusLabel.textContent = "AI Load Error";
       }
     }
 
     function populateAthletes() {
       athleteSelect.innerHTML = '<option value="">Choose an athlete...</option>';
-      athletes.forEach((name) => {
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        athleteSelect.appendChild(option);
+      athletes.forEach(name => {
+        const op = document.createElement('option');
+        op.value = name; op.textContent = name;
+        athleteSelect.appendChild(op);
       });
     }
 
     function populateExercises() {
       exerciseSelect.innerHTML = '<option value="">Choose an exercise...</option>';
-      exercises.forEach((ex) => {
-        const option = document.createElement('option');
-        option.value = ex.id;
-        option.textContent = ex.name;
-        exerciseSelect.appendChild(option);
+      exercises.forEach(ex => {
+        const op = document.createElement('option');
+        op.value = ex.id; op.textContent = ex.name;
+        exerciseSelect.appendChild(op);
       });
     }
 
@@ -717,35 +553,19 @@
       const list = document.getElementById('exerciseList');
       list.innerHTML = exercises.map(ex => `
         <div class="exercise-item">
-          <div class="exercise-item-info">
+          <div>
             <div class="exercise-item-name">${ex.name}</div>
             <div class="exercise-item-angles">Angles: ${ex.angles.join(', ')}</div>
           </div>
-          <div class="exercise-item-buttons">
-            <button class="exercise-btn-edit" onclick="editExercise(${ex.id})">✏️</button>
+          <div>
             <button class="exercise-btn-delete" onclick="deleteExercise(${ex.id})">🗑️</button>
           </div>
         </div>
       `).join('');
     }
 
-    window.editExercise = function(id) {
-      const exercise = exercises.find(ex => ex.id === id);
-      if (!exercise) return;
-
-      editingExerciseId = id;
-      newExerciseName.value = exercise.name;
-      
-      document.getElementById('cb-leftShoulder').checked = exercise.angles.includes('leftShoulder');
-      document.getElementById('cb-rightShoulder').checked = exercise.angles.includes('rightShoulder');
-      document.getElementById('cb-leftKnee').checked = exercise.angles.includes('leftKnee');
-      document.getElementById('cb-rightKnee').checked = exercise.angles.includes('rightKnee');
-
-      addExerciseBtn.textContent = 'Update Exercise';
-    };
-
     window.deleteExercise = function(id) {
-      if (confirm('Delete this exercise?')) {
+      if (confirm('Delete exercise?')) {
         exercises = exercises.filter(ex => ex.id !== id);
         localStorage.setItem('exercises', JSON.stringify(exercises));
         populateExercises();
@@ -755,8 +575,7 @@
 
     function addOrUpdateExercise() {
       const name = newExerciseName.value.trim();
-      if (!name) return alert('Enter exercise name');
-
+      if (!name) return alert('Enter name');
       const angles = [];
       if (document.getElementById('cb-leftShoulder').checked) angles.push('leftShoulder');
       if (document.getElementById('cb-rightShoulder').checked) angles.push('rightShoulder');
@@ -765,16 +584,8 @@
 
       if (angles.length === 0) return alert('Select at least one angle');
 
-      if (editingExerciseId) {
-        const idx = exercises.findIndex(ex => ex.id === editingExerciseId);
-        exercises[idx] = { id: editingExerciseId, name, angles };
-        editingExerciseId = null;
-        addExerciseBtn.textContent = 'Add Exercise';
-      } else {
-        const newId = Math.max(...exercises.map(ex => ex.id), 0) + 1;
-        exercises.push({ id: newId, name, angles });
-      }
-
+      const newId = Math.max(...exercises.map(ex => ex.id), 0) + 1;
+      exercises.push({ id: newId, name, angles });
       localStorage.setItem('exercises', JSON.stringify(exercises));
       newExerciseName.value = '';
       document.querySelectorAll('.checkbox-group input').forEach(cb => cb.checked = false);
@@ -784,8 +595,7 @@
 
     function addAthlete() {
       const name = newAthleteName.value.trim();
-      if (!name) return alert('Please enter a name');
-      if (athletes.includes(name)) return alert('Athlete already exists');
+      if (!name || athletes.includes(name)) return alert('Invalid or duplicate name');
       athletes.push(name);
       localStorage.setItem('athletes', JSON.stringify(athletes));
       currentAthlete = name;
@@ -797,57 +607,41 @@
 
     function renderAnglesGrid() {
       if (!currentExercise) return;
-
-      anglesGrid.innerHTML = currentExercise.angles.map(angleKey => {
-        const labels = {
-          leftShoulder: 'Left Shoulder',
-          rightShoulder: 'Right Shoulder',
-          leftKnee: 'Left Knee',
-          rightKnee: 'Right Knee'
-        };
-
-        return `
-          <div class="angle-card" id="card-${angleKey}">
-            <div class="angle-card-label">${labels[angleKey]}</div>
-            <div class="angle-card-value" id="${angleKey}Angle">—</div>
-          </div>
-        `;
-      }).join('');
+      const labels = { leftShoulder: 'Left Shoulder', rightShoulder: 'Right Shoulder', leftKnee: 'Left Knee', rightKnee: 'Right Knee' };
+      anglesGrid.innerHTML = currentExercise.angles.map(key => `
+        <div class="angle-card" id="card-${key}">
+          <div class="angle-card-label">${labels[key]}</div>
+          <div class="angle-card-value" id="${key}Angle">—</div>
+        </div>
+      `).join('');
     }
 
     async function startTest() {
-      if (!currentAthlete) return alert('Select an athlete first');
-      if (!currentExercise) return alert('Select an exercise first');
+      if (!currentAthlete || !currentExercise) return alert('Select athlete and exercise');
 
       testingActive = true;
       isFrozen = false;
-
       freezeBtn.className = "btn btn-freeze";
       freezeBtn.textContent = "🥶 Freeze";
 
       startBtn.classList.add('hidden');
       testingView.classList.remove('hidden');
-      historyView.classList.add('hidden');
       athleteSelect.disabled = true;
       exerciseSelect.disabled = true;
 
       renderAnglesGrid();
 
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
+        videoStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'environment', width: 640, height: 480 },
           audio: false,
         });
-        videoStream = stream;
-        videoFeed.srcObject = stream;
-        
+        videoFeed.srcObject = videoStream;
         videoFeed.onloadedmetadata = () => {
           videoFeed.play();
-          
           skeletonCanvas.width = videoFeed.videoWidth;
           skeletonCanvas.height = videoFeed.videoHeight;
           canvasCtx = skeletonCanvas.getContext('2d');
-          
           trackPoseLoop();
         };
       } catch (err) {
@@ -859,7 +653,7 @@
     function stopTest() {
       testingActive = false;
       isFrozen = false;
-      if (videoStream) videoStream.getTracks().forEach((t) => t.stop());
+      if (videoStream) videoStream.getTracks().forEach(t => t.stop());
       startBtn.classList.remove('hidden');
       testingView.classList.add('hidden');
       athleteSelect.disabled = false;
@@ -868,19 +662,18 @@
 
     function toggleFreeze() {
       if (!testingActive) return;
-
       if (!isFrozen) {
         isFrozen = true;
         videoFeed.pause();
         freezeBtn.textContent = "🔄 Unfreeze";
         freezeBtn.className = "btn btn-unfreeze";
-        document.querySelectorAll('.angle-card').forEach(card => card.classList.add('frozen'));
+        document.querySelectorAll('.angle-card').forEach(c => c.classList.add('frozen'));
       } else {
         isFrozen = false;
         videoFeed.play();
         freezeBtn.textContent = "🥶 Freeze";
         freezeBtn.className = "btn btn-freeze";
-        document.querySelectorAll('.angle-card').forEach(card => card.classList.remove('frozen'));
+        document.querySelectorAll('.angle-card').forEach(c => c.classList.remove('frozen'));
         trackPoseLoop();
       }
     }
@@ -891,217 +684,51 @@
         const poses = await poseDetector.estimatePoses(videoFeed, { flipHorizontal: false });
         if (poses && poses.length > 0) {
           const keypoints = poses[0].keypoints;
-
-          // Reset visibility flags
-          keypoints.forEach(kp => kp.hidden = false);
-
-          // DYNAMIC SWITCHING SENSOR
-          const isSideView = currentExercise && currentExercise.name.toLowerCase().includes('side');
-
-          if (isSideView) {
-            // Add visibility weights to find which side is profile-facing the lens
-            let leftTotalScore = 0;
-            let rightTotalScore = 0;
-            leftSideIndices.forEach(i => { leftTotalScore += keypoints[i]?.score || 0; });
-            rightSideIndices.forEach(i => { rightTotalScore += keypoints[i]?.score || 0; });
-
-            // STRICT SINGLE-PLANE MASK: Wipe out the occluded profile half entirely
-            if (leftTotalScore > rightTotalScore) {
-              rightSideIndices.forEach(i => { if (keypoints[i]) keypoints[i].hidden = true; });
-            } else {
-              leftSideIndices.forEach(i => { if (keypoints[i]) keypoints[i].hidden = true; });
-            }
-          }
-
-          // Render clean skeleton elements on UI Layout
           drawSkeleton(keypoints);
 
           const kp = {};
           keypoints.forEach(item => { kp[item.name] = item; });
 
-          if (isSideView) {
-            // SIDE VIEW MATH: Isolate calculations strictly to the prominent visible plane
-            if (!kp['left_shoulder']?.hidden) {
-              updateShoulderRotationAngle('leftShoulder', kp['left_shoulder'], kp['left_elbow'], kp['left_wrist']);
-              updateJointAngle('leftKnee', kp['left_ankle'], kp['left_knee'], kp['left_hip']);
-              clearAngle('rightShoulder');
-              clearAngle('rightKnee');
-            } else {
-              updateShoulderRotationAngle('rightShoulder', kp['right_shoulder'], kp['right_elbow'], kp['right_wrist']);
-              updateJointAngle('rightKnee', kp['right_ankle'], kp['right_knee'], kp['right_hip']);
-              clearAngle('leftShoulder');
-              clearAngle('leftKnee');
-            }
-          } else {
-            // FRONT / REAR STANDING LOGIC: Keep the original concurrent cross-body layout method
-            updateShoulderRotationAngle('leftShoulder', kp['left_shoulder'], kp['left_elbow'], kp['left_wrist']);
-            updateShoulderRotationAngle('rightShoulder', kp['right_shoulder'], kp['right_elbow'], kp['right_wrist']);
-            updateJointAngle('leftKnee', kp['left_ankle'], kp['left_knee'], kp['left_hip']);
-            updateJointAngle('rightKnee', kp['right_ankle'], kp['right_knee'], kp['right_hip']);
-          }
+          updateShoulderAngle('leftShoulder', kp['left_shoulder'], kp['left_elbow'], kp['left_wrist']);
+          updateShoulderAngle('rightShoulder', kp['right_shoulder'], kp['right_elbow'], kp['right_wrist']);
+          updateJointAngle('leftKnee', kp['left_ankle'], kp['left_knee'], kp['left_hip']);
+          updateJointAngle('rightKnee', kp['right_ankle'], kp['right_knee'], kp['right_hip']);
         }
       } catch (e) {
-        console.error('Pose estimation error:', e);
+        console.error(e);
       }
       if (testingActive && !isFrozen) requestAnimationFrame(trackPoseLoop);
     }
 
-    function updateShoulderRotationAngle(elementId, shoulder, elbow, wrist) {
-      if (shoulder?.hidden || elbow?.hidden || wrist?.hidden) {
-        clearAngle(elementId);
-        return;
-      }
-      const angle = calculateForearmRotationAngle(shoulder, elbow, wrist);
-      const el = document.getElementById(elementId + 'Angle');
-      if (angle !== null && el) {
-        el.textContent = Math.round(angle) + '°';
-      } else if (el) {
-        el.textContent = '—';
-      }
-    }
-
-    function calculateForearmRotationAngle(shoulder, elbow, wrist) {
-      const minConfidence = 0.35;
-      if (!shoulder || !elbow || !wrist || 
-          shoulder.score < minConfidence || elbow.score < minConfidence || wrist.score < minConfidence) {
-        return null;
-      }
-
-      const forearm = {
-        x: wrist.x - elbow.x,
-        y: wrist.y - elbow.y
-      };
-
-      const vertical = { x: 0, y: 1 };
-
-      const forearmMagnitude = Math.sqrt(forearm.x * forearm.x + forearm.y * forearm.y);
-      if (forearmMagnitude === 0) return null;
-
-      const forearmNorm = {
-        x: forearm.x / forearmMagnitude,
-        y: forearm.y / forearmMagnitude
-      };
-
-      const cosAngle = forearmNorm.x * vertical.x + forearmNorm.y * vertical.y;
-      const clampedCos = Math.max(-1, Math.min(1, cosAngle));
-      const angleRad = Math.acos(clampedCos);
-      let angleDeg = (angleRad * 180.0) / Math.PI;
-
-      if (angleDeg > 180) {
-        angleDeg = 360 - angleDeg;
-      }
-
-      return angleDeg;
-    }
-
-    function updateJointAngle(elementId, pA, pB, pC) {
-      const minConfidence = 0.35;
-      const el = document.getElementById(elementId + 'Angle');
+    function updateShoulderAngle(id, s, e, w) {
+      const el = document.getElementById(id + 'Angle');
       if (!el) return;
-
-      if (pA && pB && pC && pA.score > minConfidence && pB.score > minConfidence && pC.score > minConfidence && !pA.hidden && !pB.hidden && !pC.hidden) {
-        const angle = calculateThreePointAngle(pA, pB, pC);
-        el.textContent = Math.round(angle) + '°';
+      const minConfidence = 0.35;
+      if (s && e && w && s.score > minConfidence && e.score > minConfidence && w.score > minConfidence) {
+        const forearm = { x: w.x - e.x, y: w.y - e.y };
+        const mag = Math.sqrt(forearm.x * forearm.x + forearm.y * forearm.y);
+        if (mag === 0) return el.textContent = '—';
+        const cosAngle = forearm.y / mag;
+        let deg = (Math.acos(Math.max(-1, Math.min(1, cosAngle))) * 180) / Math.PI;
+        if (deg > 180) deg = 360 - deg;
+        el.textContent = Math.round(deg) + '°';
       } else {
         el.textContent = '—';
       }
     }
 
-    function clearAngle(elementId) {
-      const el = document.getElementById(elementId + 'Angle');
-      if (el) el.textContent = '—';
-    }
-
-    function calculateThreePointAngle(A, B, C) {
-      let radians = Math.atan2(C.y - B.y, C.x - B.x) - Math.atan2(A.y - B.y, A.x - B.x);
-      let angle = Math.abs((radians * 180.0) / Math.PI);
-      if (angle > 180.0) angle = 360.0 - angle;
-      angle = Math.min(angle, 180);
-      return angle;
-    }
-
-    function saveTest() {
-      if (!currentExercise) return alert('No exercise selected');
-
-      const record = {
-        id: Date.now(),
-        athlete: currentAthlete,
-        exercise: currentExercise.name,
-        timestamp: new Date().toLocaleString(),
-        angles: {}
-      };
-
-      currentExercise.angles.forEach(angleKey => {
-        const el = document.getElementById(angleKey + 'Angle');
-        record.angles[angleKey] = el ? parseInt(el.textContent) || 0 : 0;
-      });
-
-      testHistory.push(record);
-      localStorage.setItem('testHistory', JSON.stringify(testHistory));
-      alert('✅ Test Saved!');
-      stopTest();
-      showHistory();
-    }
-
-    function showHistory() {
-      startBtn.classList.add('hidden');
-      testingView.classList.add('hidden');
-      historyView.classList.remove('hidden');
-      renderHistory();
-    }
-
-    function renderHistory() {
-      const list = document.getElementById('historyList');
-      if (testHistory.length === 0) {
-        list.innerHTML = '<p>No saved tests yet.</p>';
-        return;
+    function updateJointAngle(id, pA, pB, pC) {
+      const el = document.getElementById(id + 'Angle');
+      if (!el) return;
+      const minConfidence = 0.35;
+      if (pA && pB && pC && pA.score > minConfidence && pB.score > minConfidence && pC.score > minConfidence) {
+        let rad = Math.atan2(pC.y - pB.y, pC.x - pB.x) - Math.atan2(pA.y - pB.y, pA.x - pB.x);
+        let deg = Math.abs((rad * 180.0) / Math.PI);
+        if (deg > 180.0) deg = 360.0 - deg;
+        el.textContent = Math.round(Math.min(deg, 180)) + '°';
+      } else {
+        el.textContent = '—';
       }
-      list.innerHTML = testHistory
-        .slice()
-        .reverse()
-        .map((r) => `
-          <div class="history-item">
-            <div class="history-item-name">${r.athlete}</div>
-            <div style="font-size: 11px; color: #0d9488; margin-bottom: 4px; font-weight: 500;">${r.exercise}</div>
-            <div class="history-item-time">${r.timestamp}</div>
-            <div class="history-item-angles">
-              ${Object.entries(r.angles).map(([k, v]) => {
-                const labels = { leftShoulder: 'L Shoulder', rightShoulder: 'R Shoulder', leftKnee: 'L Knee', rightKnee: 'R Knee' };
-                return `<div>${labels[k]}: ${v}°</div>`;
-              }).join('')}
-            </div>
-            <button class="history-item-delete" onclick="deleteRecord(${r.id})">Delete</button>
-          </div>
-        `).join('');
-    }
-
-    window.deleteRecord = function(id) {
-      if (confirm('Delete this test?')) {
-        testHistory = testHistory.filter((r) => r.id !== id);
-        localStorage.setItem('testHistory', JSON.stringify(testHistory));
-        renderHistory();
-      }
-    };
-
-    function exportData() {
-      if (testHistory.length === 0) return alert('No data to export');
-      
-      let csv = 'Athlete,Exercise,Date,';
-      const allAngles = new Set();
-      testHistory.forEach(r => Object.keys(r.angles).forEach(k => allAngles.add(k)));
-      csv += Array.from(allAngles).join(',') + '\n';
-
-      csv += testHistory.map((r) => {
-        const angleValues = Array.from(allAngles).map(k => r.angles[k] || '-').join(',');
-        return `"${r.athlete}","${r.exercise}","${r.timestamp}",${angleValues}`;
-      }).join('\n');
-
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `ai-mobility-metrics-${new Date().toISOString().split('T')[0]}.csv`;
-      a.click();
     }
 
     init();
