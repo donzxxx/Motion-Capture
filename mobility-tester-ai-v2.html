@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Athlete Mobility Tester AI</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      -webkit-touch-callout: none;
+    }
+    input, textarea {
+      -webkit-user-select: text;
+      user-select: text;
+    }
+    .container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .header {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+    .header-icon {
+      font-size: 24px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0d9488;
+      border-radius: 8px;
+      color: white;
+    }
+    .header-text h1 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .header-text p {
+      font-size: 11px;
+      color: #64748b;
+    }
+    .header-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    .header-btn {
+      background: #0d9488;
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .header-btn:active {
+      opacity: 0.8;
+    }
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .card label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 8px;
+    }
+    .card select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 16px;
+      -webkit-appearance: none;
+      appearance: none;
+      background-color: white;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23334155' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 30px;
+    }
+    .card select:disabled {
+      background-color: #f1f5f9;
+      opacity: 0.6;
+    }
+    .btn {
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+    }
+    .btn:active {
+      opacity: 0.85;
+    }
+    .btn-primary {
+      background: #0d9488;
+      color: white;
+    }
+    .btn-success {
+      background: #16a34a;
+      color: white;
+      flex: 1;
+      width: auto;
+    }
+    .btn-secondary {
+      background: #94a3b8;
+      color: white;
+      flex: 1;
+      width: auto;
+    }
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 12px;
+      background: #3b82f6;
+      color: white;
+    }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+    }
+    .video-container {
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    canvas {
+      display: block;
+    }
+    .angles-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .angle-card {
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      border-left: 4px solid #0d9488;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .angle-card-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+    .angle-card-value {
+      font-size: 28px;
+      font-weight: bold;
+      color: #1e293b;
+    }
+    .history-container {
+      max-height: 500px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .history-item {
+      background: #f1f5f9;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 8px;
+    }
+    .history-item-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 2px;
+    }
+    .history-item-time {
+      font-size: 11px;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+    .history-item-angles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+    .history-item-delete {
+      background: #fee2e2;
+      color: #dc2626;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .history-item-delete:active {
+      opacity: 0.8;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 300;
+      align-items: center;
+      justify-content: flex-end;
+      flex-direction: column;
+    }
+    .modal.show {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 12px 12px 0 0;
+      padding: 20px;
+      width: 100%;
+      max-height: 80vh;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      animation: slideUp 0.3s ease-out;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .modal-content h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #1e293b;
+    }
+    .modal-content input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 16px;
+      margin-bottom: 16px;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .modal-content input:focus {
+      outline: none;
+      border-color: #0d9488;
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    .modal-buttons .btn {
+      flex: 1;
+      margin: 0;
+    }
+    .exercise-list {
+      margin-bottom: 16px;
+    }
+    .exercise-item {
+      background: #f1f5f9;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .exercise-item-info {
+      flex: 1;
+    }
+    .exercise-item-name {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .exercise-item-angles {
+      font-size: 12px;
+      color: #64748b;
+    }
+    .exercise-item-buttons {
+      display: flex;
+      gap: 6px;
+    }
+    .exercise-btn-delete {
+      background: #fee2e2;
+      color: #dc2626;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .exercise-btn-edit {
+      background: #dbeafe;
+      color: #0284c7;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .checkbox-group {
+      margin: 12px 0;
+      padding: 12px;
+      background: #f1f5f9;
+      border-radius: 6px;
+    }
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-weight: normal;
+      color: #334155;
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .spacer {
+      height: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-left">
+        <div class="header-icon">🤖</div>
+        <div class="header-text">
+          <h1>AI Mobility Tester</h1>
+          <p id="statusLabel">Loading AI Model...</p>
+        </div>
+      </div>
+      <div class="header-buttons">
+        <button class="header-btn" id="editExercisesBtn" title="Edit Exercises">⚙️</button>
+        <button class="header-btn" id="addBtn" title="Add Athlete">➕</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="card">
+        <label>Select Athlete</label>
+        <select id="athleteSelect">
+          <option value="">Choose an athlete...</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <label>Select Exercise</label>
+        <select id="exerciseSelect">
+          <option value="">Choose an exercise...</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" id="startBtn" disabled>⏳ Initializing AI...</button>
+
+      <div id="testingView" class="hidden">
+        <div class="video-container">
+          <video id="videoFeed" autoplay playsinline muted style="position: absolute; width: 100%; height: 100%;"></video>
+          <canvas id="skeletonCanvas" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0;"></canvas>
+        </div>
+        <div class="angles-grid" id="anglesGrid">
+          <!-- Dynamically populated based on exercise -->
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-success" id="saveBtn">💾 Save</button>
+          <button class="btn btn-secondary" id="stopBtn">Stop</button>
+        </div>
+      </div>
+
+      <div id="historyView" class="hidden">
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h2 style="font-size: 15px; font-weight: 600; margin: 0;">📊 AI Data Logs</h2>
+            <button class="btn-small" id="exportBtn">Export CSV</button>
+          </div>
+          <div class="history-container" id="historyList"></div>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+    </div>
+  </div>
+
+  <!-- Add Athlete Modal -->
+  <div class="modal" id="athleteModal">
+    <div class="modal-content">
+      <h2>Add Athlete</h2>
+      <input type="text" id="newAthleteName" placeholder="Enter name" autocomplete="off">
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="addAthleteBtn">Add</button>
+        <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Exercises Modal -->
+  <div class="modal" id="exerciseModal">
+    <div class="modal-content">
+      <h2>Manage Exercises</h2>
+      
+      <div class="exercise-list" id="exerciseList"></div>
+
+      <h3 style="font-size: 14px; font-weight: 600; margin: 16px 0 12px 0;">Add New Exercise</h3>
+      <input type="text" id="newExerciseName" placeholder="Exercise name (e.g., Shoulder Flexion)">
+      
+      <label style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px; display: block;">Select Angles to Measure:</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" id="cb-leftShoulder" value="leftShoulder"> Left Shoulder</label>
+        <label><input type="checkbox" id="cb-rightShoulder" value="rightShoulder"> Right Shoulder</label>
+        <label><input type="checkbox" id="cb-leftKnee" value="leftKnee"> Left Knee</label>
+        <label><input type="checkbox" id="cb-rightKnee" value="rightKnee"> Right Knee</label>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="addExerciseBtn">Add Exercise</button>
+        <button class="btn btn-secondary" id="closeExerciseBtn">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let athletes = JSON.parse(localStorage.getItem('athletes')) || [];
+    let testHistory = JSON.parse(localStorage.getItem('testHistory')) || [];
+    let currentAthlete = '';
+    let currentExercise = null;
+    let testingActive = false;
+    let videoStream = null;
+    let poseDetector = null;
+    let editingExerciseId = null;
+
+    const defaultExercises = [
+      { id: 1, name: 'Shoulder Abduction (Back View)', angles: ['leftShoulder', 'rightShoulder'] },
+      { id: 2, name: 'Shoulder Internal Rotation (Side)', angles: ['leftShoulder', 'rightShoulder'] },
+      { id: 3, name: 'Shoulder External Rotation (Side)', angles: ['leftShoulder', 'rightShoulder'] }
+    ];
+
+    let exercises = JSON.parse(localStorage.getItem('exercises')) || defaultExercises;
+
+    // Elements
+    const addBtn = document.getElementById('addBtn');
+    const editExercisesBtn = document.getElementById('editExercisesBtn');
+    const addAthleteBtn = document.getElementById('addAthleteBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const athleteSelect = document.getElementById('athleteSelect');
+    const exerciseSelect = document.getElementById('exerciseSelect');
+    const newAthleteName = document.getElementById('newAthleteName');
+    const athleteModal = document.getElementById('athleteModal');
+    const exerciseModal = document.getElementById('exerciseModal');
+    const testingView = document.getElementById('testingView');
+    const historyView = document.getElementById('historyView');
+    const videoFeed = document.getElementById('videoFeed');
+    const statusLabel = document.getElementById('statusLabel');
+    const anglesGrid = document.getElementById('anglesGrid');
+    const addExerciseBtn = document.getElementById('addExerciseBtn');
+    const closeExerciseBtn = document.getElementById('closeExerciseBtn');
+    const newExerciseName = document.getElementById('newExerciseName');
+    const skeletonCanvas = document.getElementById('skeletonCanvas');
+    let canvasCtx = null;
+
+    // Skeleton connections (pairs of keypoint indices)
+    const skeletonConnections = [
+      [5, 6],   // shoulders
+      [5, 7],   // left shoulder to left elbow
+      [7, 9],   // left elbow to left wrist
+      [6, 8],   // right shoulder to right elbow
+      [8, 10],  // right elbow to right wrist
+      [5, 11],  // left shoulder to left hip
+      [6, 12],  // right shoulder to right hip
+      [11, 12], // hips
+      [11, 13], // left hip to left knee
+      [13, 15], // left knee to left ankle
+      [12, 14], // right hip to right knee
+      [14, 16], // right knee to right ankle
+    ];
+
+    function drawSkeleton(keypoints) {
+      if (!canvasCtx || !skeletonCanvas) return;
+
+      const canvas = skeletonCanvas;
+      const ctx = canvasCtx;
+
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const minConfidence = 0.1;
+
+      // Draw connections (skeleton)
+      ctx.strokeStyle = '#0d9488';
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+
+      skeletonConnections.forEach(([start, end]) => {
+        const startKp = keypoints[start];
+        const endKp = keypoints[end];
+
+        if (startKp.score > minConfidence && endKp.score > minConfidence) {
+          const startX = startKp.x * canvas.width;
+          const startY = startKp.y * canvas.height;
+          const endX = endKp.x * canvas.width;
+          const endY = endKp.y * canvas.height;
+
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(endX, endY);
+          ctx.stroke();
+        }
+      });
+
+      // Draw keypoints (joints)
+      keypoints.forEach((kp) => {
+        if (kp.score > minConfidence) {
+          const x = kp.x * canvas.width;
+          const y = kp.y * canvas.height;
+
+          // Circle for each keypoint
+          ctx.fillStyle = kp.score > 0.5 ? '#10b981' : '#f59e0b';
+          ctx.beginPath();
+          ctx.arc(x, y, 5, 0, 2 * Math.PI);
+          ctx.fill();
+
+          // Border
+          ctx.strokeStyle = 'white';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      });
+
+      // Draw confidence label
+      ctx.fillStyle = 'rgba(13, 148, 136, 0.9)';
+      ctx.font = 'bold 12px Arial';
+      ctx.fillText('🎯 Pose Detected', 10, 25);
+    }
+
+    // Event listeners
+    addBtn.addEventListener('click', () => {
+      athleteModal.classList.add('show');
+      setTimeout(() => newAthleteName.focus(), 100);
+    });
+
+    editExercisesBtn.addEventListener('click', () => {
+      exerciseModal.classList.add('show');
+      renderExerciseList();
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      athleteModal.classList.remove('show');
+      newAthleteName.value = '';
+    });
+
+    closeExerciseBtn.addEventListener('click', () => {
+      exerciseModal.classList.remove('show');
+    });
+
+    addAthleteBtn.addEventListener('click', addAthlete);
+    newAthleteName.addEventListener('keypress', (e) => { if (e.key === 'Enter') addAthlete(); });
+
+    addExerciseBtn.addEventListener('click', addOrUpdateExercise);
+    newExerciseName.addEventListener('keypress', (e) => { if (e.key === 'Enter') addOrUpdateExercise(); });
+
+    startBtn.addEventListener('click', startTest);
+    stopBtn.addEventListener('click', stopTest);
+    saveBtn.addEventListener('click', saveTest);
+    exportBtn.addEventListener('click', exportData);
+
+    athleteSelect.addEventListener('change', (e) => { currentAthlete = e.target.value; });
+    exerciseSelect.addEventListener('change', (e) => {
+      currentExercise = exercises.find(ex => ex.id === parseInt(e.target.value));
+    });
+
+    async function init() {
+      populateAthletes();
+      populateExercises();
+      if (testHistory.length > 0) showHistory();
+      try {
+        await tf.ready();
+        poseDetector = await poseDetection.createDetector(
+          poseDetection.SupportedModels.MoveNet,
+          { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING }
+        );
+        statusLabel.textContent = "AI Live Tracking Ready";
+        startBtn.disabled = false;
+        startBtn.textContent = "🎥 Start AI Test";
+      } catch (err) {
+        statusLabel.textContent = "AI Engine Load Error";
+        alert("Failed to initialize pose detection.");
+      }
+    }
+
+    function populateAthletes() {
+      athleteSelect.innerHTML = '<option value="">Choose an athlete...</option>';
+      athletes.forEach((name) => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        athleteSelect.appendChild(option);
+      });
+    }
+
+    function populateExercises() {
+      exerciseSelect.innerHTML = '<option value="">Choose an exercise...</option>';
+      exercises.forEach((ex) => {
+        const option = document.createElement('option');
+        option.value = ex.id;
+        option.textContent = ex.name;
+        exerciseSelect.appendChild(option);
+      });
+    }
+
+    function renderExerciseList() {
+      const list = document.getElementById('exerciseList');
+      list.innerHTML = exercises.map(ex => `
+        <div class="exercise-item">
+          <div class="exercise-item-info">
+            <div class="exercise-item-name">${ex.name}</div>
+            <div class="exercise-item-angles">Angles: ${ex.angles.join(', ')}</div>
+          </div>
+          <div class="exercise-item-buttons">
+            <button class="exercise-btn-edit" onclick="editExercise(${ex.id})">✏️</button>
+            <button class="exercise-btn-delete" onclick="deleteExercise(${ex.id})">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function editExercise(id) {
+      const exercise = exercises.find(ex => ex.id === id);
+      if (!exercise) return;
+
+      editingExerciseId = id;
+      newExerciseName.value = exercise.name;
+      
+      document.getElementById('cb-leftShoulder').checked = exercise.angles.includes('leftShoulder');
+      document.getElementById('cb-rightShoulder').checked = exercise.angles.includes('rightShoulder');
+      document.getElementById('cb-leftKnee').checked = exercise.angles.includes('leftKnee');
+      document.getElementById('cb-rightKnee').checked = exercise.angles.includes('rightKnee');
+
+      addExerciseBtn.textContent = 'Update Exercise';
+    }
+
+    function deleteExercise(id) {
+      if (confirm('Delete this exercise?')) {
+        exercises = exercises.filter(ex => ex.id !== id);
+        localStorage.setItem('exercises', JSON.stringify(exercises));
+        populateExercises();
+        renderExerciseList();
+      }
+    }
+
+    function addOrUpdateExercise() {
+      const name = newExerciseName.value.trim();
+      if (!name) return alert('Enter exercise name');
+
+      const angles = [];
+      if (document.getElementById('cb-leftShoulder').checked) angles.push('leftShoulder');
+      if (document.getElementById('cb-rightShoulder').checked) angles.push('rightShoulder');
+      if (document.getElementById('cb-leftKnee').checked) angles.push('leftKnee');
+      if (document.getElementById('cb-rightKnee').checked) angles.push('rightKnee');
+
+      if (angles.length === 0) return alert('Select at least one angle');
+
+      if (editingExerciseId) {
+        const idx = exercises.findIndex(ex => ex.id === editingExerciseId);
+        exercises[idx] = { id: editingExerciseId, name, angles };
+        editingExerciseId = null;
+        addExerciseBtn.textContent = 'Add Exercise';
+      } else {
+        const newId = Math.max(...exercises.map(ex => ex.id), 0) + 1;
+        exercises.push({ id: newId, name, angles });
+      }
+
+      localStorage.setItem('exercises', JSON.stringify(exercises));
+      newExerciseName.value = '';
+      document.querySelectorAll('.checkbox-group input').forEach(cb => cb.checked = false);
+      populateExercises();
+      renderExerciseList();
+    }
+
+    function addAthlete() {
+      const name = newAthleteName.value.trim();
+      if (!name) return alert('Please enter a name');
+      if (athletes.includes(name)) return alert('Athlete already exists');
+      athletes.push(name);
+      localStorage.setItem('athletes', JSON.stringify(athletes));
+      currentAthlete = name;
+      populateAthletes();
+      athleteSelect.value = name;
+      athleteModal.classList.remove('show');
+      newAthleteName.value = '';
+    }
+
+    function renderAnglesGrid() {
+      if (!currentExercise) return;
+
+      anglesGrid.innerHTML = currentExercise.angles.map(angleKey => {
+        const labels = {
+          leftShoulder: 'Left Shoulder',
+          rightShoulder: 'Right Shoulder',
+          leftKnee: 'Left Knee',
+          rightKnee: 'Right Knee'
+        };
+
+        return `
+          <div class="angle-card">
+            <div class="angle-card-label">${labels[angleKey]}</div>
+            <div class="angle-card-value" id="${angleKey}Angle">—</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function startTest() {
+      if (!currentAthlete) return alert('Select an athlete first');
+      if (!currentExercise) return alert('Select an exercise first');
+
+      testingActive = true;
+      startBtn.classList.add('hidden');
+      testingView.classList.remove('hidden');
+      historyView.classList.add('hidden');
+      athleteSelect.disabled = true;
+      exerciseSelect.disabled = true;
+
+      renderAnglesGrid();
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: 640, height: 480 },
+          audio: false,
+        });
+        videoStream = stream;
+        videoFeed.srcObject = stream;
+        
+        // Initialize canvas after video loads
+        videoFeed.onloadedmetadata = () => {
+          videoFeed.play();
+          
+          // Set canvas size to match video
+          skeletonCanvas.width = videoFeed.videoWidth;
+          skeletonCanvas.height = videoFeed.videoHeight;
+          canvasCtx = skeletonCanvas.getContext('2d');
+          
+          trackPoseLoop();
+        };
+      } catch (err) {
+        alert('Camera permissions required.');
+        stopTest();
+      }
+    }
+
+    function stopTest() {
+      testingActive = false;
+      if (videoStream) videoStream.getTracks().forEach((t) => t.stop());
+      startBtn.classList.remove('hidden');
+      testingView.classList.add('hidden');
+      athleteSelect.disabled = false;
+      exerciseSelect.disabled = false;
+    }
+
+    async function trackPoseLoop() {
+      if (!testingActive) return;
+      try {
+        const poses = await poseDetector.estimatePoses(videoFeed);
+        if (poses && poses.length > 0) {
+          const keypoints = poses[0].keypoints;
+
+          // Draw skeleton on canvas
+          drawSkeleton(keypoints);
+
+          const kp = {};
+          keypoints.forEach(item => { kp[item.name] = item; });
+
+          // Use forearm rotation angle for shoulder exercises (more accurate for rotation)
+          updateShoulderRotationAngle('leftShoulder', kp['left_shoulder'], kp['left_elbow'], kp['left_wrist']);
+          updateShoulderRotationAngle('rightShoulder', kp['right_shoulder'], kp['right_elbow'], kp['right_wrist']);
+          
+          // Use three-point angle for knee measurements
+          updateJointAngle('leftKnee', kp['left_ankle'], kp['left_knee'], kp['left_hip']);
+          updateJointAngle('rightKnee', kp['right_ankle'], kp['right_knee'], kp['right_hip']);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      if (testingActive) requestAnimationFrame(trackPoseLoop);
+    }
+
+    function updateJointAngle(elementId, pA, pB, pC) {
+      const minConfidence = 0.35;
+      if (pA && pB && pC && pA.score > minConfidence && pB.score > minConfidence && pC.score > minConfidence) {
+        const angle = calculateThreePointAngle(pA, pB, pC);
+        const el = document.getElementById(elementId + 'Angle');
+        if (el) el.textContent = Math.round(angle) + '°';
+      } else {
+        const el = document.getElementById(elementId + 'Angle');
+        if (el) el.textContent = '—';
+      }
+    }
+
+    function calculateForearmRotationAngle(shoulder, elbow, wrist) {
+      const minConfidence = 0.35;
+      if (!shoulder || !elbow || !wrist || 
+          shoulder.score < minConfidence || elbow.score < minConfidence || wrist.score < minConfidence) {
+        return null;
+      }
+
+      // Vector from elbow to wrist (forearm direction)
+      const forearm = {
+        x: wrist.x - elbow.x,
+        y: wrist.y - elbow.y
+      };
+
+      // Vertical vector (pointing down)
+      const vertical = { x: 0, y: 1 };
+
+      // Normalize forearm vector
+      const forearmMagnitude = Math.sqrt(forearm.x * forearm.x + forearm.y * forearm.y);
+      if (forearmMagnitude === 0) return null;
+
+      const forearmNorm = {
+        x: forearm.x / forearmMagnitude,
+        y: forearm.y / forearmMagnitude
+      };
+
+      // Calculate angle from vertical
+      const cosAngle = forearmNorm.x * vertical.x + forearmNorm.y * vertical.y;
+      const clampedCos = Math.max(-1, Math.min(1, cosAngle));
+      const angleRad = Math.acos(clampedCos);
+      let angleDeg = (angleRad * 180.0) / Math.PI;
+
+      // Determine direction (left or right of vertical)
+      const cross = forearm.x * vertical.y - forearm.y * vertical.x;
+      if (cross < 0) {
+        angleDeg = 360 - angleDeg;
+      }
+
+      return angleDeg;
+    }
+
+    function updateShoulderRotationAngle(elementId, shoulder, elbow, wrist) {
+      const angle = calculateForearmRotationAngle(shoulder, elbow, wrist);
+      const el = document.getElementById(elementId + 'Angle');
+      if (angle !== null && el) {
+        el.textContent = Math.round(angle) + '°';
+      } else if (el) {
+        el.textContent = '—';
+      }
+    }
+
+    function calculateThreePointAngle(A, B, C) {
+      let radians = Math.atan2(C.y - B.y, C.x - B.x) - Math.atan2(A.y - B.y, A.x - B.x);
+      let angle = Math.abs((radians * 180.0) / Math.PI);
+      if (angle > 180.0) angle = 360.0 - angle;
+      return angle;
+    }
+
+    function saveTest() {
+      if (!currentExercise) return alert('No exercise selected');
+
+      const record = {
+        id: Date.now(),
+        athlete: currentAthlete,
+        exercise: currentExercise.name,
+        timestamp: new Date().toLocaleString(),
+        angles: {}
+      };
+
+      currentExercise.angles.forEach(angleKey => {
+        const el = document.getElementById(angleKey + 'Angle');
+        record.angles[angleKey] = el ? parseInt(el.textContent) || 0 : 0;
+      });
+
+      testHistory.push(record);
+      localStorage.setItem('testHistory', JSON.stringify(testHistory));
+      alert('✅ Test Saved!');
+      stopTest();
+      showHistory();
+    }
+
+    function showHistory() {
+      startBtn.classList.add('hidden');
+      testingView.classList.add('hidden');
+      historyView.classList.remove('hidden');
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('historyList');
+      if (testHistory.length === 0) {
+        list.innerHTML = '<p>No saved tests yet.</p>';
+        return;
+      }
+      list.innerHTML = testHistory
+        .slice()
+        .reverse()
+        .map((r) => `
+          <div class="history-item">
+            <div class="history-item-name">${r.athlete}</div>
+            <div style="font-size: 11px; color: #0d9488; margin-bottom: 4px; font-weight: 500;">${r.exercise}</div>
+            <div class="history-item-time">${r.timestamp}</div>
+            <div class="history-item-angles">
+              ${Object.entries(r.angles).map(([k, v]) => {
+                const labels = { leftShoulder: 'L Shoulder', rightShoulder: 'R Shoulder', leftKnee: 'L Knee', rightKnee: 'R Knee' };
+                return `<div>${labels[k]}: ${v}°</div>`;
+              }).join('')}
+            </div>
+            <button class="history-item-delete" onclick="deleteRecord(${r.id})">Delete</button>
+          </div>
+        `).join('');
+    }
+
+    function deleteRecord(id) {
+      if (confirm('Delete this test?')) {
+        testHistory = testHistory.filter((r) => r.id !== id);
+        localStorage.setItem('testHistory', JSON.stringify(testHistory));
+        renderHistory();
+      }
+    }
+
+    function exportData() {
+      if (testHistory.length === 0) return alert('No data to export');
+      
+      let csv = 'Athlete,Exercise,Date,';
+      const allAngles = new Set();
+      testHistory.forEach(r => Object.keys(r.angles).forEach(k => allAngles.add(k)));
+      csv += Array.from(allAngles).join(',') + '\n';
+
+      csv += testHistory.map((r) => {
+        const angleValues = Array.from(allAngles).map(k => r.angles[k] || '-').join(',');
+        return `"${r.athlete}","${r.exercise}","${r.timestamp}",${angleValues}`;
+      }).join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ai-mobility-metrics-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+    }
+
+    init();
+  </script>
+</body>
+</html>
