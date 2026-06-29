@@ -199,6 +199,8 @@
       display: block;
       z-index: 10;
       pointer-events: none;
+      width: 100%;
+      height: 100%;
     }
     .angles-grid {
       display: grid;
@@ -399,7 +401,6 @@
     let isFrozen = false;
     let videoStream = null;
     let poseDetector = null;
-    let editingExerciseId = null;
 
     const defaultExercises = [
       { id: 1, name: 'Shoulder Abduction (Back View)', angles: ['leftShoulder', 'rightShoulder'] },
@@ -476,7 +477,6 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const minConfidence = 0.2; 
-      let detectedCount = 0;
 
       ctx.strokeStyle = isFrozen ? '#3b82f6' : '#00ff00';
       ctx.lineWidth = 4;
@@ -489,10 +489,9 @@
           const endKp = keypoints[end];
           if (startKp.score > minConfidence && endKp.score > minConfidence) {
             ctx.beginPath();
-            ctx.moveTo(startKp.x * canvas.width, startKp.y * canvas.height);
-            ctx.lineTo(endKp.x * canvas.width, endKp.y * canvas.height);
+            ctx.moveTo(startKp.x, startKp.y);
+            ctx.lineTo(endKp.x, endKp.y);
             ctx.stroke();
-            detectedCount++;
           }
         }
       });
@@ -501,7 +500,7 @@
         if (kp.score > minConfidence) {
           ctx.fillStyle = isFrozen ? '#3b82f6' : (kp.score > 0.5 ? '#00ff00' : '#ffaa00');
           ctx.beginPath();
-          ctx.arc(kp.x * canvas.width, kp.y * canvas.height, 8, 0, 2 * Math.PI);
+          ctx.arc(kp.x, kp.y, 8, 0, 2 * Math.PI);
           ctx.fill();
           ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 3;
