@@ -299,19 +299,6 @@
       font-size: 12px;
       color: #64748b;
     }
-    .exercise-item-buttons {
-      display: flex;
-      gap: 6px;
-    }
-    .exercise-btn-delete {
-      background: #fee2e2;
-      color: #dc2626;
-      border: none;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      cursor: pointer;
-    }
     .checkbox-group {
       margin: 12px 0;
       padding: 12px;
@@ -502,13 +489,10 @@
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const minConfidence = 0.2; 
-      let detectedCount = 0;
-
+      const minConfidence = 0.25; 
       ctx.strokeStyle = isFrozen ? '#3b82f6' : '#00ff00'; 
       ctx.lineWidth = 4;
       ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
 
       skeletonConnections.forEach(([start, end]) => {
         if (start < keypoints.length && end < keypoints.length) {
@@ -520,27 +504,18 @@
             ctx.moveTo(startKp.x, startKp.y);
             ctx.lineTo(endKp.x, endKp.y);
             ctx.stroke();
-            detectedCount++;
           }
         }
       });
 
       keypoints.forEach((kp) => {
         if (kp.score > minConfidence) {
-          ctx.fillStyle = isFrozen ? '#3b82f6' : (kp.score > 0.5 ? '#00ff00' : '#ffaa00');
+          ctx.fillStyle = isFrozen ? '#3b82f6' : '#00ff00';
           ctx.beginPath();
           ctx.arc(kp.x, kp.y, 6, 0, 2 * Math.PI);
           ctx.fill();
-
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 2;
-          ctx.stroke();
         }
       });
-
-      ctx.fillStyle = isFrozen ? '#3b82f6' : '#00ff00';
-      ctx.font = 'bold 14px Arial';
-      ctx.fillText(isFrozen ? '🥶 FRAME FROZEN' : '🎯 Skeleton Tracking', 15, 30);
     }
 
     async function init() {
@@ -710,14 +685,12 @@
         videoFeed.pause(); 
         freezeBtn.textContent = "🔄 Unfreeze";
         freezeBtn.className = "btn btn-unfreeze";
-        
         document.querySelectorAll('.angle-card').forEach(card => card.classList.add('frozen'));
       } else {
         isFrozen = false;
         videoFeed.play();
         freezeBtn.textContent = "🥶 Freeze";
         freezeBtn.className = "btn btn-freeze";
-        
         document.querySelectorAll('.angle-card').forEach(card => card.classList.remove('frozen'));
         trackPoseLoop(); 
       }
@@ -735,10 +708,31 @@
           const kp = {};
           keypoints.forEach(item => { kp[item.name] = item; });
 
-          updateShoulderAngle('leftShoulder', kp['left_elbow'], kp['left_shoulder'], kp['left_hip']);
-          updateShoulderAngle('rightShoulder', kp['right_elbow'], kp['right_shoulder'], kp['right_hip']);
-          updateJointAngle('leftKnee', kp['left_ankle'], kp['left_knee'], kp['left_hip']);
-          updateJointAngle('rightKnee', kp['right_ankle'], kp['right_knee'], kp['right_hip']);
+          const isSideView = currentExercise.name.toLowerCase().includes('side view');
+
+          if (isSideView) {
+            // SIDE VIEW LOGIC: Only display metrics for the prominent visible side
+            const leftSideConfidence = (kp['left_shoulder']?.score || 0) + (kp['left_elbow']?.score || 0) + (kp['left_hip']?.score || 0);
+            const rightSideConfidence = (kp['right_shoulder']?.score || 0) + (kp['right_elbow']?.score || 0) + (kp['right_hip']?.score || 0);
+
+            if (leftSideConfidence > rightSideConfidence) {
+              updateSideAngle('leftShoulder', kp['left_elbow'], kp['left_shoulder'], kp['left_hip']);
+              updateSideAngle('leftKnee', kp['left_ankle'], kp['left_knee'], kp['left_hip']);
+              clearAngle('rightShoulder');
+              clearAngle('rightKnee');
+            } else {
+              updateSideAngle('rightShoulder', kp['right_elbow'], kp['right_shoulder'], kp['right_hip']);
+              updateSideAngle('rightKnee', kp['right_ankle'], kp['right_knee'], kp['right_hip']);
+              clearAngle('leftShoulder');
+              clearAngle('leftKnee');
+            }
+          } else {
+            // REAR / FRONT LOGIC: Keep the original method rendering both sides simultaneously
+            updateSideAngle('leftShoulder', kp['left_elbow'], kp['left_shoulder'], kp['left_hip']);
+            updateSideAngle('rightShoulder', kp['right_elbow'], kp['right_shoulder'], kp['right_hip']);
+            updateSideAngle('leftKnee', kp['left_ankle'], kp['left_knee'], kp['left_hip']);
+            updateSideAngle('rightKnee', kp['right_ankle'], kp['right_knee'], kp['right_hip']);
+          }
         }
       } catch (e) {
         console.error(e);
@@ -746,20 +740,7 @@
       if (testingActive && !isFrozen) requestAnimationFrame(trackPoseLoop);
     }
 
-    function updateShoulderAngle(elementId, elbow, shoulder, hip) {
-      const minConfidence = 0.35;
-      const el = document.getElementById(elementId + 'Angle');
-      if (!el) return;
-
-      if (elbow && shoulder && hip && elbow.score > minConfidence && shoulder.score > minConfidence && hip.score > minConfidence) {
-        const angle = calculateThreePointAngle(elbow, shoulder, hip);
-        el.textContent = Math.round(angle) + '°';
-      } else {
-        el.textContent = '—';
-      }
-    }
-
-    function updateJointAngle(elementId, pA, pB, pC) {
+    function updateSideAngle(elementId, pA, pB, pC) {
       const minConfidence = 0.35;
       const el = document.getElementById(elementId + 'Angle');
       if (!el) return;
@@ -770,6 +751,11 @@
       } else {
         el.textContent = '—';
       }
+    }
+
+    function clearAngle(elementId) {
+      const el = document.getElementById(elementId + 'Angle');
+      if (el) el.textContent = '—';
     }
 
     function calculateThreePointAngle(A, B, C) {
