@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Athlete Mobility Tester AI</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      -webkit-touch-callout: none;
+    }
+    input, textarea {
+      -webkit-user-select: text;
+      user-select: text;
+    }
+    .container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .header {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+    .header-icon {
+      font-size: 24px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0d9488;
+      border-radius: 8px;
+      color: white;
+    }
+    .header-text h1 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .header-text p {
+      font-size: 11px;
+      color: #64748b;
+    }
+    .header-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    .header-btn {
+      background: #0d9488;
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .header-btn:active {
+      opacity: 0.8;
+    }
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .card label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 8px;
+    }
+    .card select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 16px;
+      -webkit-appearance: none;
+      appearance: none;
+      background-color: white;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23334155' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 30px;
+    }
+    .card select:disabled {
+      background-color: #f1f5f9;
+      opacity: 0.6;
+    }
+    .btn {
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+    }
+    .btn:active {
+      opacity: 0.85;
+    }
+    .btn-primary {
+      background: #0d9488;
+      color: white;
+    }
+    .btn-freeze {
+      background: #3b82f6;
+      color: white;
+      flex: 2;
+    }
+    .btn-unfreeze {
+      background: #eab308;
+      color: #1e293b;
+      flex: 2;
+    }
+    .btn-secondary {
+      background: #94a3b8;
+      color: white;
+      flex: 1;
+    }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .video-wrapper {
+      width: 100%;
+      position: relative;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    #skeletonCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .angles-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .angle-card {
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      border-left: 4px solid #0d9488;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .angle-card.frozen {
+      border-left-color: #3b82f6;
+      background: #eff6ff;
+    }
+    .angle-card-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+    .angle-card-value {
+      font-size: 26px;
+      font-weight: bold;
+      color: #1e293b;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 300;
+      align-items: center;
+      justify-content: flex-end;
+      flex-direction: column;
+    }
+    .modal.show {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 12px 12px 0 0;
+      padding: 20px;
+      width: 100%;
+      max-height: 80vh;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      animation: slideUp 0.3s ease-out;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .modal-content input[type="text"] {
+      width: 100%;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 18px;
+      margin-bottom: 20px;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .modal-content h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #1e293b;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .exercise-list {
+      margin-bottom: 16px;
+    }
+    .exercise-item {
+      background: #f1f5f9;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .exercise-item-info {
+      flex: 1;
+    }
+    .exercise-item-name {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .exercise-item-angles {
+      font-size: 12px;
+      color: #64748b;
+    }
+    .checkbox-group {
+      margin: 12px 0;
+      padding: 12px;
+      background: #f1f5f9;
+      border-radius: 6px;
+    }
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-weight: normal;
+      color: #334155;
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .spacer {
+      height: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-left">
+        <div class="header-icon">🤖</div>
+        <div class="header-text">
+          <h1>AI Mobility Tester</h1>
+          <p id="statusLabel">Loading AI Model...</p>
+        </div>
+      </div>
+      <div class="header-buttons">
+        <button class="header-btn" id="editExercisesBtn" title="Edit Exercises">⚙️</button>
+        <button class="header-btn" id="addBtn" title="Add Athlete">➕</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="card">
+        <label>Select Athlete</label>
+        <select id="athleteSelect">
+          <option value="">Choose an athlete...</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <label>Select Exercise</label>
+        <select id="exerciseSelect">
+          <option value="">Choose an exercise...</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" id="startBtn" disabled>⏳ Initializing AI...</button>
+
+      <div id="testingView" class="hidden">
+        <div class="video-wrapper">
+          <video id="videoFeed" autoplay playsinline muted></video>
+          <canvas id="skeletonCanvas"></canvas>
+        </div>
+        <div class="angles-grid" id="anglesGrid">
+          </div>
+        <div class="btn-row">
+          <button class="btn btn-freeze" id="freezeBtn">🥶 Freeze</button>
+          <button class="btn btn-secondary" id="stopBtn">Stop</button>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="athleteModal">
+    <div class="modal-content">
+      <h2>Add Athlete</h2>
+      <input type="text" id="newAthleteName" placeholder="Enter name" autocomplete="off">
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="addAthleteBtn">Add</button>
+        <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="exerciseModal">
+    <div class="modal-content">
+      <h2>Manage Exercises</h2>
+      <div class="exercise-list" id="exerciseList"></div>
+      <h3 style="font-size: 14px; font-weight: 600; margin: 16px 0 12px 0;">Add New Exercise</h3>
+      <input type="text" id="newExerciseName" placeholder="Exercise name">
+      <div class="checkbox-group">
+        <label><input type="checkbox" id="cb-leftShoulder" value="leftShoulder"> Left Shoulder</label>
+        <label><input type="checkbox" id="cb-rightShoulder" value="rightShoulder"> Right Shoulder</label>
+        <label><input type="checkbox" id="cb-leftKnee" value="leftKnee"> Left Knee</label>
+        <label><input type="checkbox" id="cb-rightKnee" value="rightKnee"> Right Knee</label>
+      </div>
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="addExerciseBtn">Add Exercise</button>
+        <button class="btn btn-secondary" id="closeExerciseBtn">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let athletes = JSON.parse(localStorage.getItem('athletes')) || [];
+    let currentAthlete = '';
+    let currentExercise = null;
+    let testingActive = false;
+    let isFrozen = false;
+    let lastUpdateTime = 0;
+    const updateInterval = 250; // milliseconds - adjust this to change measurement frequency
+    
+    // Temporal smoothing - stores recent angle values
+    const angleHistory = {};
+    const smoothingWindowSize = 5; // Average last N measurements
+    
+    function addAngleToHistory(elementId, angle) {
+      if (!angleHistory[elementId]) {
+        angleHistory[elementId] = [];
+      }
+      angleHistory[elementId].push(angle);
+      
+      // Keep only last N values
+      if (angleHistory[elementId].length > smoothingWindowSize) {
+        angleHistory[elementId].shift();
+      }
+    }
+    
+    function getSmoothedAngle(elementId) {
+      if (!angleHistory[elementId] || angleHistory[elementId].length === 0) {
+        return null;
+      }
+      
+      // Calculate average of history
+      const sum = angleHistory[elementId].reduce((a, b) => a + b, 0);
+      return sum / angleHistory[elementId].length;
+    }
+    
+    function clearAngleHistory(elementId) {
+      if (angleHistory[elementId]) {
+        angleHistory[elementId] = [];
+      }
+    }
+    let videoStream = null;
+    let poseDetector = null;
+
+    const defaultExercises = [
+      { id: 1, name: 'Shoulder Abduction (Back View)', angles: ['leftShoulder', 'rightShoulder'] },
+      { id: 2, name: 'Shoulder Internal/External Rotation (Side View)', angles: ['leftShoulder', 'rightShoulder'] },
+      { id: 3, name: 'Combined Shoulder Elevation (Side View)', angles: ['leftShoulder', 'rightShoulder'] }
+    ];
+
+    let exercises = JSON.parse(localStorage.getItem('exercises')) || defaultExercises;
+
+    const addBtn = document.getElementById('addBtn');
+    const editExercisesBtn = document.getElementById('editExercisesBtn');
+    const addAthleteBtn = document.getElementById('addAthleteBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const freezeBtn = document.getElementById('freezeBtn');
+    const athleteSelect = document.getElementById('athleteSelect');
+    const exerciseSelect = document.getElementById('exerciseSelect');
+    const newAthleteName = document.getElementById('newAthleteName');
+    const athleteModal = document.getElementById('athleteModal');
+    const exerciseModal = document.getElementById('exerciseModal');
+    const testingView = document.getElementById('testingView');
+    const videoFeed = document.getElementById('videoFeed');
+    const skeletonCanvas = document.getElementById('skeletonCanvas');
+    const statusLabel = document.getElementById('statusLabel');
+    const anglesGrid = document.getElementById('anglesGrid');
+    const addExerciseBtn = document.getElementById('addExerciseBtn');
+    const closeExerciseBtn = document.getElementById('closeExerciseBtn');
+    const newExerciseName = document.getElementById('newExerciseName');
+
+    let canvasCtx = null;
+
+    const skeletonConnections = [
+      [5, 6], [5, 7], [7, 9], [6, 8], [8, 10], [5, 11], [6, 12], [11, 12],
+      [11, 13], [13, 15], [12, 14], [14, 16]
+    ];
+
+    addBtn.addEventListener('click', () => {
+      athleteModal.classList.add('show');
+      setTimeout(() => newAthleteName.focus(), 100);
+    });
+
+    editExercisesBtn.addEventListener('click', () => {
+      exerciseModal.classList.add('show');
+      renderExerciseList();
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      athleteModal.classList.remove('show');
+      newAthleteName.value = '';
+    });
+
+    closeExerciseBtn.addEventListener('click', () => {
+      exerciseModal.classList.remove('show');
+    });
+
+    addAthleteBtn.addEventListener('click', addAthlete);
+    addExerciseBtn.addEventListener('click', addExercise);
+    startBtn.addEventListener('click', startTest);
+    stopBtn.addEventListener('click', stopTest);
+    freezeBtn.addEventListener('click', toggleFreeze);
+
+    athleteSelect.addEventListener('change', (e) => { currentAthlete = e.target.value; });
+    exerciseSelect.addEventListener('change', (e) => {
+      currentExercise = exercises.find(ex => ex.id === parseInt(e.target.value));
+    });
+
+    function drawSkeleton(keypoints) {
+      if (!canvasCtx || !skeletonCanvas) return;
+
+      const canvas = skeletonCanvas;
+      const ctx = canvasCtx;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const minConfidence = 0.1;
+      
+      const isSideView = currentExercise && currentExercise.name.toLowerCase().includes('side');
+      const isRotation = currentExercise && currentExercise.name.toLowerCase().includes('rotation');
+      
+      // Calculate arm confidence scores
+      const leftArmConfidence = (keypoints[5]?.score || 0) + (keypoints[7]?.score || 0) + (keypoints[9]?.score || 0);
+      const rightArmConfidence = (keypoints[6]?.score || 0) + (keypoints[8]?.score || 0) + (keypoints[10]?.score || 0);
+      
+      // Show ONLY the arm with higher confidence
+      const showLeftArm = leftArmConfidence > rightArmConfidence;
+      
+      // For ROTATION: Only show elbow-wrist stick (no shoulder)
+      const rotationConnections = showLeftArm 
+        ? [[7, 9]]  // Left elbow to left wrist ONLY
+        : [[8, 10]]; // Right elbow to right wrist ONLY
+      
+      const rotationJoints = showLeftArm 
+        ? [7, 9]  // Left elbow, wrist ONLY (no shoulder)
+        : [8, 10]; // Right elbow, wrist ONLY (no shoulder)
+      
+      // Connections for full arm (original)
+      const singleArmConnections = showLeftArm 
+        ? [[5, 7], [7, 9]]  // Left arm only
+        : [[6, 8], [8, 10]]; // Right arm only
+      
+      const singleArmJoints = showLeftArm 
+        ? [5, 7, 9]  // Left shoulder, elbow, wrist
+        : [6, 8, 10]; // Right shoulder, elbow, wrist
+
+      // Choose which connections to draw
+      let connectionsToUse;
+      let jointsToShow;
+      
+      if (isRotation) {
+        // ROTATION TEST: Only elbow-wrist stick
+        connectionsToUse = rotationConnections;
+        jointsToShow = rotationJoints;
+      } else if (isSideView) {
+        // OTHER SIDE VIEW: Full arm
+        connectionsToUse = singleArmConnections;
+        jointsToShow = singleArmJoints;
+      } else {
+        // FRONTAL VIEW: Full skeleton
+        connectionsToUse = skeletonConnections;
+        jointsToShow = null;
+      }
+
+      // For ROTATION: Only show elbow-wrist (indices 7,9 or 8,10)
+      if (isRotation) {
+        // Setup line style
+        ctx.strokeStyle = isFrozen ? '#3b82f6' : '#00ff00';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        
+        const elbowIdx = showLeftArm ? 7 : 8;
+        const wristIdx = showLeftArm ? 9 : 10;
+        const elbow = keypoints[elbowIdx];
+        const wrist = keypoints[wristIdx];
+        
+        // Draw ONLY the elbow-to-wrist line
+        if (elbow && wrist && elbow.score > minConfidence && wrist.score > minConfidence) {
+          ctx.beginPath();
+          ctx.moveTo(elbow.x, elbow.y);
+          ctx.lineTo(wrist.x, wrist.y);
+          ctx.stroke();
+        }
+        
+        // Draw ONLY 2 circles (elbow + wrist)
+        if (elbow && elbow.score > minConfidence) {
+          ctx.fillStyle = isFrozen ? '#3b82f6' : '#00ff00';
+          ctx.beginPath();
+          ctx.arc(elbow.x, elbow.y, 6, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+        if (wrist && wrist.score > minConfidence) {
+          ctx.fillStyle = isFrozen ? '#3b82f6' : '#00ff00';
+          ctx.beginPath();
+          ctx.arc(wrist.x, wrist.y, 6, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+      } else {
+        // NON-ROTATION: Draw full skeleton
+        // Setup line style
+        ctx.strokeStyle = isFrozen ? '#3b82f6' : '#00ff00';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        
+        // Draw lines using connections
+        connectionsToUse.forEach(([start, end]) => {
+          if (start < keypoints.length && end < keypoints.length) {
+            const startKp = keypoints[start];
+            const endKp = keypoints[end];
+
+            if (startKp.score > minConfidence && endKp.score > minConfidence) {
+              ctx.beginPath();
+              ctx.moveTo(startKp.x, startKp.y);
+              ctx.lineTo(endKp.x, endKp.y);
+              ctx.stroke();
+              drawnLines++;
+            }
+          }
+        });
+
+        // Draw circles at joints
+        let detectedJoints = 0;
+        keypoints.forEach((kp, index) => {
+          // For other side views: show only the dominant arm
+          if (isSideView && jointsToShow && !jointsToShow.includes(index)) {
+            return;
+          }
+
+          if (kp.score > minConfidence) {
+            ctx.fillStyle = isFrozen ? '#3b82f6' : '#00ff00';
+            ctx.beginPath();
+            ctx.arc(kp.x, kp.y, 6, 0, 2 * Math.PI);
+            ctx.fill();
+            detectedJoints++;
+          }
+        });
+      }
+
+      // Status text
+      ctx.fillStyle = isFrozen ? '#3b82f6' : '#00ff00';
+      ctx.font = 'bold 14px Arial';
+      const armLabel = showLeftArm ? 'LEFT' : 'RIGHT';
+      let viewText;
+      if (isRotation) {
+        viewText = `ROTATION - ${armLabel} FOREARM ONLY`;
+      } else {
+        viewText = isSideView ? `SIDE VIEW - ${armLabel} ARM` : 'BACK VIEW';
+      }
+      ctx.fillText(`🎯 ${viewText}`, 10, 25);
+    }
+
+    async function init() {
+      populateAthletes();
+      populateExercises();
+      
+      try {
+        await tf.ready();
+        poseDetector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, {
+          modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
+        });
+        statusLabel.textContent = "AI Live Tracking Ready";
+        startBtn.disabled = false;
+        startBtn.textContent = "🎥 Start AI Test";
+      } catch (err) {
+        statusLabel.textContent = "AI Load Error";
+      }
+    }
+
+    function populateAthletes() {
+      athleteSelect.innerHTML = '<option value="">Choose an athlete...</option>';
+      athletes.forEach((name) => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        athleteSelect.appendChild(option);
+      });
+    }
+
+    function populateExercises() {
+      exerciseSelect.innerHTML = '<option value="">Choose an exercise...</option>';
+      exercises.forEach((ex) => {
+        const option = document.createElement('option');
+        option.value = ex.id;
+        option.textContent = ex.name;
+        exerciseSelect.appendChild(option);
+      });
+    }
+
+    function renderExerciseList() {
+      const list = document.getElementById('exerciseList');
+      list.innerHTML = exercises.map(ex => `
+        <div class="exercise-item">
+          <div class="exercise-item-info">
+            <div class="exercise-item-name">${ex.name}</div>
+            <div class="exercise-item-angles">Angles: ${ex.angles.join(', ')}</div>
+          </div>
+          <button class="exercise-btn-delete" onclick="deleteExercise(${ex.id})">🗑️</button>
+        </div>
+      `).join('');
+    }
+
+    window.deleteExercise = function(id) {
+      if (confirm('Delete this exercise?')) {
+        exercises = exercises.filter(ex => ex.id !== id);
+        localStorage.setItem('exercises', JSON.stringify(exercises));
+        populateExercises();
+        renderExerciseList();
+      }
+    };
+
+    function addExercise() {
+      const name = newExerciseName.value.trim();
+      if (!name) return alert('Enter exercise name');
+
+      const angles = [];
+      if (document.getElementById('cb-leftShoulder').checked) angles.push('leftShoulder');
+      if (document.getElementById('cb-rightShoulder').checked) angles.push('rightShoulder');
+      if (document.getElementById('cb-leftKnee').checked) angles.push('leftKnee');
+      if (document.getElementById('cb-rightKnee').checked) angles.push('rightKnee');
+
+      if (angles.length === 0) return alert('Select at least one angle');
+
+      const newId = Math.max(...exercises.map(ex => ex.id), 0) + 1;
+      exercises.push({ id: newId, name, angles });
+      localStorage.setItem('exercises', JSON.stringify(exercises));
+      
+      newExerciseName.value = '';
+      document.querySelectorAll('.checkbox-group input').forEach(cb => cb.checked = false);
+      populateExercises();
+      renderExerciseList();
+    }
+
+    function addAthlete() {
+      const name = newAthleteName.value.trim();
+      if (!name) return alert('Please enter a name');
+      athletes.push(name);
+      localStorage.setItem('athletes', JSON.stringify(athletes));
+      currentAthlete = name;
+      populateAthletes();
+      athleteSelect.value = name;
+      athleteModal.classList.remove('show');
+      newAthleteName.value = '';
+    }
+
+    function renderAnglesGrid() {
+      if (!currentExercise) return;
+      anglesGrid.innerHTML = currentExercise.angles.map(angleKey => {
+        const labels = {
+          leftShoulder: 'Left Shoulder',
+          rightShoulder: 'Right Shoulder',
+          leftKnee: 'Left Knee',
+          rightKnee: 'Right Knee'
+        };
+        return `
+          <div class="angle-card" id="card-${angleKey}">
+            <div class="angle-card-label">${labels[angleKey]}</div>
+            <div class="angle-card-value" id="${angleKey}Angle">—</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function startTest() {
+      if (!currentAthlete) return alert('Select an athlete first');
+      if (!currentExercise) return alert('Select an exercise first');
+
+      testingActive = true;
+      isFrozen = false;
+      
+      freezeBtn.className = "btn btn-freeze";
+      freezeBtn.textContent = "🥶 Freeze";
+      
+      startBtn.classList.add('hidden');
+      testingView.classList.remove('hidden');
+      athleteSelect.disabled = true;
+      exerciseSelect.disabled = true;
+
+      renderAnglesGrid();
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: 640, height: 480 },
+          audio: false,
+        });
+        videoStream = stream;
+        videoFeed.srcObject = stream;
+        
+        videoFeed.onloadedmetadata = () => {
+          videoFeed.play();
+          skeletonCanvas.width = videoFeed.videoWidth;
+          skeletonCanvas.height = videoFeed.videoHeight;
+          canvasCtx = skeletonCanvas.getContext('2d');
+          trackPoseLoop();
+        };
+      } catch (err) {
+        alert('Camera required.');
+        stopTest();
+      }
+    }
+
+    function stopTest() {
+      testingActive = false;
+      isFrozen = false;
+      if (videoStream) videoStream.getTracks().forEach((t) => t.stop());
+      
+      // Clear angle history for next test
+      Object.keys(angleHistory).forEach(key => {
+        angleHistory[key] = [];
+      });
+      
+      startBtn.classList.remove('hidden');
+      testingView.classList.add('hidden');
+      athleteSelect.disabled = false;
+      exerciseSelect.disabled = false;
+    }
+
+    function toggleFreeze() {
+      if (!testingActive) return;
+      
+      if (!isFrozen) {
+        isFrozen = true;
+        videoFeed.pause(); 
+        freezeBtn.textContent = "🔄 Unfreeze";
+        freezeBtn.className = "btn btn-unfreeze";
+        document.querySelectorAll('.angle-card').forEach(card => card.classList.add('frozen'));
+      } else {
+        isFrozen = false;
+        videoFeed.play();
+        freezeBtn.textContent = "🥶 Freeze";
+        freezeBtn.className = "btn btn-freeze";
+        document.querySelectorAll('.angle-card').forEach(card => card.classList.remove('frozen'));
+        trackPoseLoop(); 
+      }
+    }
+
+    async function trackPoseLoop() {
+      if (!testingActive || isFrozen) {
+        requestAnimationFrame(trackPoseLoop);
+        return;
+      }
+      
+      const now = Date.now();
+      
+      // Only update measurements at throttled interval
+      if (now - lastUpdateTime >= updateInterval) {
+        lastUpdateTime = now;
+        
+        try {
+          const poses = await poseDetector.estimatePoses(videoFeed, { flipHorizontal: false });
+          if (poses && poses.length > 0) {
+            const keypoints = poses[0].keypoints;
+
+            drawSkeleton(keypoints);
+
+            const kp = {};
+            keypoints.forEach(item => { kp[item.name] = item; });
+
+            const isSideView = currentExercise.name.toLowerCase().includes('side view');
+
+          if (isSideView) {
+            // SIDE VIEW LOGIC: Only display metrics for the prominent visible side
+            const leftSideConfidence = (kp['left_shoulder']?.score || 0) + (kp['left_elbow']?.score || 0) + (kp['left_hip']?.score || 0);
+            const rightSideConfidence = (kp['right_shoulder']?.score || 0) + (kp['right_elbow']?.score || 0) + (kp['right_hip']?.score || 0);
+
+            if (leftSideConfidence > rightSideConfidence) {
+              showAngle('leftShoulder');
+              showAngle('leftKnee');
+              updateSideAngle('leftShoulder', kp['left_elbow'], kp['left_shoulder'], kp['left_wrist']);
+              updateSideAngle('leftKnee', kp['left_ankle'], kp['left_knee'], kp['left_hip']);
+              clearAngle('rightShoulder');
+              clearAngle('rightKnee');
+            } else {
+              showAngle('rightShoulder');
+              showAngle('rightKnee');
+              updateSideAngle('rightShoulder', kp['right_elbow'], kp['right_shoulder'], kp['right_wrist']);
+              updateSideAngle('rightKnee', kp['right_ankle'], kp['right_knee'], kp['right_hip']);
+              clearAngle('leftShoulder');
+              clearAngle('leftKnee');
+            }
+          } else {
+            // REAR / FRONT LOGIC: Keep the original method rendering both sides simultaneously
+            updateSideAngle('leftShoulder', kp['left_elbow'], kp['left_shoulder'], kp['left_wrist']);
+            updateSideAngle('rightShoulder', kp['right_elbow'], kp['right_shoulder'], kp['right_wrist']);
+            updateSideAngle('leftKnee', kp['left_ankle'], kp['left_knee'], kp['left_hip']);
+            updateSideAngle('rightKnee', kp['right_ankle'], kp['right_knee'], kp['right_hip']);
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      } // Close throttle condition
+      
+      if (testingActive && !isFrozen) requestAnimationFrame(trackPoseLoop);
+    }
+
+    function updateSideAngle(elementId, pA, pB, pC) {
+      const minConfidence = 0.1;
+      const el = document.getElementById(elementId + 'Angle');
+      if (!el) return;
+
+      const isSideView = currentExercise && currentExercise.name.toLowerCase().includes('side');
+      const isElevation = currentExercise && currentExercise.name.toLowerCase().includes('elevation');
+      
+      if (isSideView) {
+        if (isElevation) {
+          // ELEVATION TEST: Measure arm angle from HORIZONTAL
+          // pB = shoulder, pC = wrist
+          if (pB && pC && pB.score > minConfidence && pC.score > minConfidence) {
+            const angle = calculateArmAngleFromHorizontal(pB, pC);
+            if (angle !== null) {
+              // Add to history and smooth
+              addAngleToHistory(elementId, angle);
+              const smoothedAngle = getSmoothedAngle(elementId);
+              el.textContent = Math.round(smoothedAngle) + '°';
+            } else {
+              el.textContent = '—';
+            }
+          } else {
+            el.textContent = '—';
+          }
+        } else {
+          // ROTATION TEST: Measure forearm angle from VERTICAL (elbow + wrist ONLY)
+          // Skip shoulder - works even when shoulder is hidden/misidentified
+          // pA = elbow, pC = wrist
+          if (pA && pC && pA.score > 0.15 && pC.score > 0.15) {
+            const angle = calculateForearmAngleFromVertical(pA, pC);
+            if (angle !== null) {
+              // Add to history and smooth
+              addAngleToHistory(elementId, angle);
+              const smoothedAngle = getSmoothedAngle(elementId);
+              el.textContent = Math.round(smoothedAngle) + '°';
+            } else {
+              el.textContent = '—';
+            }
+          } else {
+            el.textContent = '—';
+          }
+        }
+      } else {
+        // FRONTAL PLANE: Original three-point angle
+        if (pA && pB && pC && pA.score > minConfidence && pB.score > minConfidence && pC.score > minConfidence) {
+          const angle = calculateThreePointAngle(pA, pB, pC);
+          // Add to history and smooth
+          addAngleToHistory(elementId, angle);
+          const smoothedAngle = getSmoothedAngle(elementId);
+          el.textContent = Math.round(smoothedAngle) + '°';
+        } else {
+          el.textContent = '—';
+        }
+      }
+    }
+    
+    function calculateArmAngleFromHorizontal(shoulder, wrist) {
+      // Measure angle of arm (shoulder->wrist) from horizontal
+      // 0° = horizontal (level with shoulder)
+      // Positive = elevated above horizontal
+      // Negative = below horizontal
+      
+      const arm = {
+        x: wrist.x - shoulder.x,
+        y: wrist.y - shoulder.y
+      };
+      
+      // In image space, y increases downward
+      // So we negate y to convert to standard coordinates (y increases up)
+      const armAngleRad = Math.atan2(-arm.y, arm.x);
+      let armAngleDeg = (armAngleRad * 180.0) / Math.PI;
+      
+      // Clamp to -90 to +90 range (below to above horizontal)
+      if (armAngleDeg > 90) armAngleDeg = 180 - armAngleDeg;
+      if (armAngleDeg < -90) armAngleDeg = -180 - armAngleDeg;
+      
+      return armAngleDeg;
+    }
+    
+    function calculateForearmAngleFromVertical(elbow, wrist) {
+      // Calculate angle of forearm (elbow->wrist) from vertical
+      // For ROTATION ONLY: returns 0-90° unsigned magnitude
+      // Uses ELBOW + WRIST only (shoulder-independent)
+      // 0° = straight down (no rotation), 90° = horizontal (max rotation)
+      // Works even when shoulder is hidden or misidentified!
+      
+      const forearm = {
+        x: wrist.x - elbow.x,
+        y: wrist.y - elbow.y
+      };
+      
+      // Vertical reference (pointing down in image space)
+      const vertical = { x: 0, y: 1 };
+      
+      // Normalize forearm vector
+      const mag = Math.sqrt(forearm.x * forearm.x + forearm.y * forearm.y);
+      if (mag === 0) return null;
+      
+      const forearmNorm = {
+        x: forearm.x / mag,
+        y: forearm.y / mag
+      };
+      
+      // Angle from vertical using dot product
+      const cosAngle = forearmNorm.x * vertical.x + forearmNorm.y * vertical.y;
+      const clampedCos = Math.max(-1, Math.min(1, cosAngle));
+      const angleRad = Math.acos(clampedCos);
+      let angleDeg = (angleRad * 180.0) / Math.PI;
+      
+      // Cap at 90 degrees (unsigned magnitude only)
+      // 0° = vertical, 90° = horizontal (forward or backward)
+      if (angleDeg > 90) angleDeg = 180 - angleDeg;
+      
+      return Math.min(angleDeg, 90);
+    }
+
+    function clearAngle(elementId) {
+      const el = document.getElementById(elementId + 'Angle');
+      const card = document.getElementById('card-' + elementId);
+      if (el) el.textContent = '—';
+      if (card) card.style.display = 'none';
+    }
+    
+    function showAngle(elementId) {
+      const card = document.getElementById('card-' + elementId);
+      if (card) card.style.display = 'block';
+    }
+
+    function calculateThreePointAngle(A, B, C) {
+      let radians = Math.atan2(C.y - B.y, C.x - B.x) - Math.atan2(A.y - B.y, A.x - B.x);
+      let angle = Math.abs((radians * 180.0) / Math.PI);
+      if (angle > 180.0) angle = 360.0 - angle;
+      return Math.min(angle, 180);
+    }
+
+    init();
+  </script>
+</body>
+</html>
