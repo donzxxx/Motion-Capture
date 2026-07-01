@@ -675,7 +675,7 @@
       try {
         await tf.ready();
         poseDetector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, {
-          modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
+          modelType: poseDetection.movenet.modelType.SINGLEPOSE_THUNDER
         });
         statusLabel.textContent = "AI Live Tracking Ready";
         startBtn.disabled = false;
