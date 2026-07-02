@@ -622,12 +622,17 @@
       }
     }
 
-    function closePoseDetection() {
-      poseDetectionActive = false;
-      if (videoStream) videoStream.getTracks().forEach(track => track.stop());
-      poseView.classList.add('hidden');
-      poseResults.classList.remove('hidden');
-    }
+function closePoseDetection() {
+  poseDetectionActive = false;
+  if (videoStream) videoStream.getTracks().forEach(track => track.stop());
+  poseView.classList.add('hidden');
+  poseResults.classList.remove('hidden');
+  
+  // Clear the pose input fields when stopping (unless you click Record)
+  document.getElementById('shoulderAbduction').value = '';
+  document.getElementById('rotation').value = '';
+  document.getElementById('elevation').value = '';
+}
 
     async function trackPoseLoop() {
       if (!poseDetectionActive) return;
