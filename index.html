@@ -579,13 +579,14 @@
       });
 
       exerciseSelect.addEventListener('change', (e) => {
-        const selected = e.target.value;
-        if (selected) {
-          startPoseBtn.style.display = 'block';
-        } else {
-          startPoseBtn.style.display = 'none';
-        }
-      });
+  const selected = e.target.value;
+  currentExercise = selected;  // ADD THIS LINE!
+  if (selected) {
+    startPoseBtn.style.display = 'block';
+  } else {
+    startPoseBtn.style.display = 'none';
+  }
+});
 
       startPoseBtn.addEventListener('click', startPoseDetection);
       recordPoseBtn.addEventListener('click', recordPoseMeasurement);
