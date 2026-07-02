@@ -543,10 +543,21 @@
 
     function populateAthleteDropdown() {
       athleteSelect.innerHTML = '<option value="">Select Athlete...</option>';
+      
+      if (!athletes || athletes.length === 0) {
+        athleteSelect.innerHTML = '<option value="">⚠️ No athletes found in sheet</option>';
+        return;
+      }
+
       athletes.forEach(athlete => {
         const option = document.createElement('option');
-        option.value = athlete.id;
-        option.textContent = `${athlete.name} (${athlete.id})`;
+        
+        // Extract values safely, supporting multiple naming variants
+        const id = athlete.id || athlete.athleteId || '';
+        const name = athlete.name || athlete.athleteName || 'Unknown Athlete';
+        
+        option.value = id || name; 
+        option.textContent = id ? `${name} (${id})` : name;
         athleteSelect.appendChild(option);
       });
     }
