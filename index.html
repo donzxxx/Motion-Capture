@@ -513,24 +513,22 @@
     }
 
     async function loadAthletes() {
-      try {
-        // This will be replaced with actual Google Sheets API call
-        // For now, using placeholder - will update with proper API
-        const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Roster?key=AIzaSyB-Wd_V_h0G8QZ_5N3Vqz_y3z6z7z8z9`);
-        if (response.ok) {
-          const data = await response.json();
-          const rows = data.values || [];
-          athletes = rows.slice(1).map(row => ({
-            id: row[0],
-            name: row[1]
-          }));
-          populateAthleteDropdown();
-        }
-      } catch (error) {
-        console.warn('Could not load athletes from sheet:', error);
-        showMessage('Note: Athletes must be loaded from Google Sheet. Update SCRIPT_URL first.', 'error');
-      }
+  try {
+    const response = await fetch(SCRIPT_URL + '?action=getAthletes');
+    const data = await response.json();
+    
+    if (data.status === 'success') {
+      athletes = data.athletes;
+      populateAthleteDropdown();
+    } else {
+      console.error('Failed to load athletes:', data.message);
+      showMessage('Could not load athlete roster', 'error');
     }
+  } catch (error) {
+    console.error('Error loading athletes:', error);
+    showMessage('Error loading athlete roster: ' + error.message, 'error');
+  }
+}
 
     function populateAthleteDropdown() {
       athleteSelect.innerHTML = '<option value="">Select Athlete...</option>';
