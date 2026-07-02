@@ -512,23 +512,34 @@
       setupEventListeners();
     }
 
-    async function loadAthletes() {
-  try {
-    const response = await fetch(SCRIPT_URL + '?action=getAthletes');
-    const data = await response.json();
-    
-    if (data.status === 'success') {
-      athletes = data.athletes;
-      populateAthleteDropdown();
-    } else {
-      console.error('Failed to load athletes:', data.message);
-      showMessage('Could not load athlete roster', 'error');
+  async function loadAthletes() {
+    try {
+      const statusLabel = document.getElementById('statusLabel');
+      if (statusLabel) statusLabel.textContent = "Syncing live cloud roster...";
+      
+      // Added cross-origin redirect settings for GitHub Pages compatibility
+      const response = await fetch(SCRIPT_URL + '?action=getAthletes', {
+        method: 'GET',
+        redirect: 'follow'
+      });
+      
+      if (!response.ok) throw new Error("Network response encountered a routing block.");
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        athletes = data.athletes;
+        populateAthleteDropdown();
+        if (statusLabel) statusLabel.textContent = "Complete Athlete Assessment";
+      } else {
+        console.error('Failed to load athletes:', data.message);
+        showMessage('Could not load athlete roster', 'error');
+      }
+    } catch (error) {
+      console.error('Error loading athletes:', error);
+      showMessage('Error loading athlete roster: Check connection configurations.', 'error');
+      athleteSelect.innerHTML = '<option value="">⚠️ Check Apps Script Deployment Settings</option>';
     }
-  } catch (error) {
-    console.error('Error loading athletes:', error);
-    showMessage('Error loading athlete roster: ' + error.message, 'error');
   }
-}
 
     function populateAthleteDropdown() {
       athleteSelect.innerHTML = '<option value="">Select Athlete...</option>';
@@ -820,13 +831,18 @@
       }
     }
 
-    async function sendToGoogleSheet(data) {
-      // This will be called after Apps Script deployment
-      // For now, logs the data
-      console.log('Data to be submitted:', data);
-      return new Promise((resolve) => {
-        setTimeout(() => resolve(data), 500);
+async function sendToGoogleSheet(data) {
+      const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8', 
+        },
+        body: JSON.stringify(data)
       });
+      
+      if (!response.ok) throw new Error('Data submission failed.');
+      return await response.json();
     }
 
     function showMessage(text, type = 'success') {
