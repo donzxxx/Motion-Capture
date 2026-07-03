@@ -383,12 +383,12 @@
         </div>
 
         <div class="form-group" style="margin-bottom: 12px;">
-          <label>Dead Hang</label>
-          <input type="number" id="deadhang" placeholder="e.g., 60s">
+          <label>Dead Hang (s)</label>
+          <input type="number" id="deadhang" placeholder="e.g., 60">
         </div>
 
         <div class="form-group">
-          <label>Sit Up Test</label>
+          <label>Sit Up Test (Reps)</label>
           <input type="number" id="Situp" placeholder="e.g., 60">
         </div>
       </div>
@@ -492,7 +492,7 @@
     let athletes = [];
     let currentPoseMeasurement = {};
 
-    // Temporal Smoothing Window States from V5
+    // Temporal Smoothing buffers
     const angleHistory = {};
     const smoothingWindowSize = 5;
 
@@ -557,7 +557,7 @@
           redirect: 'follow'
         });
         
-        if (!response.ok) throw new Error("Network response encountered a routing block.");
+        if (!response.ok) throw new Error("Network response error.");
         const data = await response.json();
         
         if (data.status === 'success') {
@@ -565,29 +565,25 @@
           populateAthleteDropdown();
           if (statusLabel) statusLabel.textContent = "Complete Athlete Assessment";
         } else {
-          console.error('Failed to load athletes:', data.message);
           showMessage('Could not load athlete roster', 'error');
         }
       } catch (error) {
         console.error('Error loading athletes:', error);
-        showMessage('Error loading athlete roster: Check connection configurations.', 'error');
-        athleteSelect.innerHTML = '<option value="">⚠️ Check Apps Script Deployment Settings</option>';
+        showMessage('Error loading athlete roster. Check connection setup.', 'error');
+        athleteSelect.innerHTML = '<option value="">⚠️ Check Apps Script Setup</option>';
       }
     }
 
     function populateAthleteDropdown() {
       athleteSelect.innerHTML = '<option value="">Select Athlete...</option>';
-      
       if (!athletes || athletes.length === 0) {
-        athleteSelect.innerHTML = '<option value="">⚠️ No athletes found in sheet</option>';
+        athleteSelect.innerHTML = '<option value="">⚠️ No athletes found</option>';
         return;
       }
-
       athletes.forEach(athlete => {
         const option = document.createElement('option');
-        const id = athlete.id || athlete.athleteId || '';
-        const name = athlete.name || athlete.athleteName || 'Unknown Athlete';
-        
+        const id = athlete.id || '';
+        const name = athlete.name || 'Unknown';
         option.value = id || name; 
         option.textContent = id ? `${name} (${id})` : name;
         athleteSelect.appendChild(option);
@@ -601,24 +597,15 @@
           modelType: poseDetection.movenet.modelType.SINGLEPOSE_THUNDER
         });
       } catch (error) {
-        console.error('Pose detection initialization failed:', error);
+        console.error('Pose detector fallback error:', error);
       }
     }
 
     function setupEventListeners() {
-      athleteSelect.addEventListener('change', (e) => {
-        currentAthlete = e.target.value;
-      });
-
+      athleteSelect.addEventListener('change', (e) => { currentAthlete = e.target.value; });
       exerciseSelect.addEventListener('change', (e) => {
-        const selected = e.target.value;
-        if (selected) {
-          startPoseBtn.style.display = 'block';
-        } else {
-          startPoseBtn.style.display = 'none';
-        }
+        startPoseBtn.style.display = e.target.value ? 'block' : 'none';
       });
-
       startPoseBtn.addEventListener('click', startPoseDetection);
       recordPoseBtn.addEventListener('click', recordPoseMeasurement);
       closePoseBtn.addEventListener('click', closePoseDetection);
@@ -626,12 +613,8 @@
     }
 
     async function startPoseDetection() {
-      if (!athleteSelect.value) {
-        showMessage('Please select an athlete first', 'error');
-        return;
-      }
-      if (!exerciseSelect.value) {
-        showMessage('Please select an exercise profile', 'error');
+      if (!athleteSelect.value || !exerciseSelect.value) {
+        showMessage('Please select an athlete and exercise profile first', 'error');
         return;
       }
 
@@ -640,14 +623,12 @@
       poseView.classList.remove('hidden');
       poseResults.classList.add('hidden');
 
-      // Clear layout and smoothing buffers
       anglesGrid.innerHTML = '';
       clearAngleHistory('left');
       clearAngleHistory('right');
       clearAngleHistory('combined');
       currentPoseMeasurement = {};
 
-      // Inject clean visual HUD containers matching selected profile specs from V5
       if (currentExercise === 'abduction') {
         anglesGrid.innerHTML = `
           <div class="angle-card"><div class="angle-label">Left Abduction</div><div class="angle-value" id="hudLeftAngle">—</div></div>
@@ -677,8 +658,7 @@
           trackPoseLoop();
         };
       } catch (error) {
-        console.error('Camera initialization failure:', error);
-        showMessage('Camera access required', 'error');
+        showMessage('Camera access required for tracking', 'error');
         closePoseDetection();
       }
     }
@@ -693,7 +673,6 @@
 
     async function trackPoseLoop() {
       if (!poseDetectionActive) return;
-
       try {
         const poses = await poseDetector.estimatePoses(videoFeed, { flipHorizontal: false });
         if (poses && poses.length > 0) {
@@ -702,19 +681,15 @@
           updateMeasurementsPorted(keypoints);
         }
       } catch (error) {
-        console.error('Pose tracking error:', error);
+        console.error(error);
       }
-
       if (poseDetectionActive) requestAnimationFrame(trackPoseLoop);
     }
 
-    // Advanced Canvas Line Isolation Renderer from V5
     function drawSkeletonPorted(keypoints) {
       if (!canvasCtx || !skeletonCanvas) return;
-
-      const canvas = skeletonCanvas;
       const ctx = canvasCtx;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, skeletonCanvas.width, skeletonCanvas.height);
 
       const minConfidence = 0.15;
       ctx.strokeStyle = '#00ff00';
@@ -724,9 +699,9 @@
       const isRotation = currentExercise.toLowerCase().includes('rotation');
       const isSideView = currentExercise.toLowerCase().includes('left') || currentExercise.toLowerCase().includes('right') || currentExercise === 'elevation';
 
-      const leftArmConfidence = (keypoints[5]?.score || 0) + (keypoints[7]?.score || 0) + (keypoints[9]?.score || 0);
-      const rightArmConfidence = (keypoints[6]?.score || 0) + (keypoints[8]?.score || 0) + (keypoints[10]?.score || 0);
-      const showLeftArm = currentExercise.toLowerCase().includes('left') || (isSideView && !currentExercise.toLowerCase().includes('right') && leftArmConfidence > rightArmConfidence);
+      // BUG FIX: Explicitly check target text over variable model confidences to lock tracking side
+      const showLeftArm = currentExercise.toLowerCase().includes('left') ? true : 
+                          (currentExercise.toLowerCase().includes('right') ? false : true);
 
       let connectionsToUse = skeletonConnections;
       let jointsToShow = null;
@@ -739,7 +714,6 @@
         jointsToShow = showLeftArm ? [5, 7, 11] : [6, 8, 12];
       }
 
-      // Draw connecting lines
       connectionsToUse.forEach(([start, end]) => {
         const startKp = keypoints[start];
         const endKp = keypoints[end];
@@ -751,7 +725,6 @@
         }
       });
 
-      // Draw precise joint tracking dots
       keypoints.forEach((kp, index) => {
         if (jointsToShow && !jointsToShow.includes(index)) return;
         if (kp.score > minConfidence) {
@@ -764,16 +737,14 @@
 
       ctx.fillStyle = '#00ff00';
       ctx.font = 'bold 14px Arial';
-      ctx.fillText('🎯 AI Active View', 10, 25);
+      ctx.fillText('🎯 AI Active Target View', 10, 25);
     }
 
-    // Mathematical Dot Product Joint Space Estimator from V5
     function updateMeasurementsPorted(keypoints) {
       const kp = {};
       keypoints.forEach(item => { kp[item.name] = item; });
       const minConfidence = 0.2;
 
-      // EXERCISE A: SHOULDER ABDUCTION (FRONT/BACK VIEW)
       if (currentExercise === 'abduction') {
         if (kp['left_elbow'] && kp['left_shoulder'] && kp['left_hip'] && 
             kp['left_elbow'].score > minConfidence && kp['left_shoulder'].score > minConfidence && kp['left_hip'].score > minConfidence) {
@@ -793,8 +764,8 @@
         }
       }
 
-      // EXERCISE B: INTERNAL/EXTERNAL ROTATION (SIDE VIEWS VS VERTICAL VECTOR)
       else if (currentExercise.toLowerCase().includes('rotation')) {
+        // BUG FIX: Explicit side isolation logic
         const isLeftTest = currentExercise.toLowerCase().includes('left');
         const elbow = isLeftTest ? kp['left_elbow'] : kp['right_elbow'];
         const wrist = isLeftTest ? kp['left_wrist'] : kp['right_wrist'];
@@ -822,8 +793,8 @@
         }
       }
 
-      // EXERCISE C: COMBINED ELEVATION (SIDE VIEW VS HORIZONTAL PLANES)
       else if (currentExercise === 'elevation') {
+        // Fallback checks prioritize clean coordinate mapping over camera alignment
         const leftConf = (kp['left_shoulder']?.score || 0) + (kp['left_wrist']?.score || 0);
         const rightConf = (kp['right_shoulder']?.score || 0) + (kp['right_wrist']?.score || 0);
         const useLeft = leftConf > rightConf;
@@ -863,11 +834,10 @@
 
     function recordPoseMeasurement() {
       if (!currentPoseMeasurement || Object.keys(currentPoseMeasurement).length === 0) {
-        showMessage('No clear tracking points visible to freeze yet.', 'error');
+        showMessage('No visible joint points detected to record.', 'error');
         return;
       }
 
-      // Freeze parameters into standard output profile inputs
       if (currentExercise === 'abduction') {
         if (currentPoseMeasurement.left) document.getElementById('abductionLeft').value = currentPoseMeasurement.left;
         if (currentPoseMeasurement.right) document.getElementById('abductionRight').value = currentPoseMeasurement.right;
@@ -883,7 +853,7 @@
         if (currentPoseMeasurement.combined) document.getElementById('elevation').value = currentPoseMeasurement.combined;
       }
 
-      showMessage('Mobility values frozen into input logs!', 'success');
+      showMessage('Mobility values successfully recorded!', 'success');
       closePoseDetection();
     }
 
@@ -895,7 +865,7 @@
 
       const athlete = athletes.find(a => a.id === currentAthlete);
       if (!athlete) {
-        showMessage('Athlete not found', 'error');
+        showMessage('Selected athlete not found', 'error');
         return;
       }
 
@@ -925,10 +895,10 @@
       submitBtn.textContent = '📤 Submitting...';
 
       try {
-        const response = await sendToGoogleSheet(measurements);
+        await sendToGoogleSheet(measurements);
         successModal.classList.add('show');
       } catch (error) {
-        showMessage('Error submitting measurements: ' + error.message, 'error');
+        showMessage('Submission error: ' + error.message, 'error');
         submitBtn.disabled = false;
         submitBtn.textContent = '📤 Submit All Measurements';
       }
@@ -938,25 +908,19 @@
       const response = await fetch(SCRIPT_URL, {
         method: 'POST',
         redirect: 'follow',
-        headers: {
-          'Content-Type': 'text/plain;charset=utf-8', 
-        },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(data)
       });
-      
-      if (!response.ok) throw new Error('Data submission failed.');
+      if (!response.ok) throw new Error('Network error during submission.');
       return await response.json();
     }
 
     function showMessage(text, type = 'success') {
       statusMessage.textContent = text;
       statusMessage.className = `status-message show ${type}`;
-      setTimeout(() => {
-        statusMessage.classList.remove('show');
-      }, 4000);
+      setTimeout(() => { statusMessage.classList.remove('show'); }, 4000);
     }
 
-    // Initialize
     init();
   </script>
 </body>
