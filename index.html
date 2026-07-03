@@ -479,7 +479,9 @@
 
   <script>
     // ===== CONFIGURATION =====
+// ===== CONFIGURATION =====
     const SHEET_ID = '1xxs6mirxr5W3mHFRXZbtVAzskoxiq2yr3KINQvHQvyo';
+    // IMPORTANT: Make sure this URL exactly matches your latest Web App deployment URL!
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwQY91T_M3BMlV74FCM8z0Ke5gPIocI-26uOmXvm3F8mwFWoOEAEqAR0ZlNQg4i8_vx/exec';
     
     // ===== STATE =====
@@ -552,37 +554,41 @@
         const statusLabel = document.getElementById('statusLabel');
         if (statusLabel) statusLabel.textContent = "Syncing live cloud roster...";
         
-        const response = await fetch(SCRIPT_URL + '?action=getAthletes', {
+        // Build clear query parameter to signal your doGet function
+        const urlWithParams = SCRIPT_URL + '?action=getAthletes';
+        
+        const response = await fetch(urlWithParams, {
           method: 'GET',
+          mode: 'cors',
           redirect: 'follow'
         });
         
-        if (!response.ok) throw new Error("Network response error.");
+        if (!response.ok) throw new Error("Network connectivity breakdown.");
         const data = await response.json();
         
-        if (data.status === 'success') {
-          athletes = data.athletes;
+        if (data && data.status === 'success') {
+          athletes = data.athletes || [];
           populateAthleteDropdown();
           if (statusLabel) statusLabel.textContent = "Complete Athlete Assessment";
         } else {
-          showMessage('Could not load athlete roster', 'error');
+          throw new Error(data ? data.message : 'Unknown data format issue');
         }
       } catch (error) {
         console.error('Error loading athletes:', error);
-        showMessage('Error loading athlete roster. Check connection setup.', 'error');
-        athleteSelect.innerHTML = '<option value="">⚠️ Check Apps Script Setup</option>';
+        showMessage('Roster Load Error: Check Apps Script configuration.', 'error');
+        athleteSelect.innerHTML = '<option value="">⚠️ Roster load failed</option>';
       }
     }
 
     function populateAthleteDropdown() {
       athleteSelect.innerHTML = '<option value="">Select Athlete...</option>';
       if (!athletes || athletes.length === 0) {
-        athleteSelect.innerHTML = '<option value="">⚠️ No athletes found</option>';
+        athleteSelect.innerHTML = '<option value="">⚠️ No athletes found in sheet</option>';
         return;
       }
       athletes.forEach(athlete => {
         const option = document.createElement('option');
-        // REVERT: Value is exactly what gets printed in selection
+        // Keep value pristine as simple identifier string
         option.value = athlete.id || athlete.name || ''; 
         option.textContent = athlete.id ? `${athlete.name} (${athlete.id})` : athlete.name;
         athleteSelect.appendChild(option);
@@ -596,12 +602,11 @@
           modelType: poseDetection.movenet.modelType.SINGLEPOSE_THUNDER
         });
       } catch (error) {
-        console.error('Pose detector fallback error:', error);
+        console.error('Pose detector engine ready error:', error);
       }
     }
 
     function setupEventListeners() {
-      // REVERT: Standard assignment directly from selection value
       athleteSelect.addEventListener('change', (e) => { 
         currentAthlete = e.target.value; 
       });
@@ -857,14 +862,12 @@
     }
 
     async function submitMeasurements() {
-      // REVERT: Check original input value explicitly
       const selectedValue = athleteSelect.value;
       if (!selectedValue) {
         showMessage('Please select an athlete', 'error');
         return;
       }
 
-      // Revert: Build direct key-value dataset payload without cascading lookups
       const measurements = {
         timestamp: new Date().toISOString(),
         athleteId: selectedValue,
@@ -891,9 +894,12 @@
       submitBtn.textContent = '📤 Submitting...';
 
       try {
-        // REVERT: Standard un-blocked cross-origin dispatch layout
-        await sendToGoogleSheet(measurements);
-        successModal.classList.add('show');
+        const res = await sendToGoogleSheet(measurements);
+        if (res && res.status === 'success') {
+          successModal.classList.add('show');
+        } else {
+          throw new Error(res ? res.message : 'Database rejection.');
+        }
       } catch (error) {
         showMessage('Submission error: ' + error.message, 'error');
         submitBtn.disabled = false;
@@ -902,14 +908,21 @@
     }
 
     async function sendToGoogleSheet(data) {
+      const formBody = Object.keys(data)
+        .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+        .join('&');
+
       const response = await fetch(SCRIPT_URL, {
         method: 'POST',
-        redirect: 'follow',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(data)
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+        },
+        body: formBody,
+        redirect: 'follow'
       });
-      if (!response.ok) throw new Error('Network response error.');
-      return response;
+
+      if (!response.ok) throw new Error('Network response connection error.');
+      return await response.json();
     }
 
     function showMessage(text, type = 'success') {
@@ -919,6 +932,6 @@
     }
 
     init();
-  </script>
+  </script>   
 </body>
 </html>
