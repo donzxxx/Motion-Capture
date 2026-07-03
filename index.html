@@ -322,25 +322,26 @@
       </div>
 
       <!-- ANTHROPOMETRIC MEASUREMENTS -->
-      <div class="section">
+<div class="section">
         <div class="section-title">📏 Anthropometric Measurements</div>
         
         <div class="measurement-row">
-    <div class="form-group">
-    <label>Shoulder Abduction - Left (°)</label>
-    <input type="number" id="abductionLeft" step="0.1" placeholder="Measured via AI" readonly style="background: #f1f5f9;">
-    </div>
-    <div class="form-group">
-      <label>Shoulder Abduction - Right (°)</label>
-      <input type="number" id="abductionRight" step="0.1" placeholder="Measured via AI" readonly style="background: #f1f5f9;">
-    </div>
-  </div>
+          <div class="form-group">
+            <label>Standing Height (cm)</label>
+            <input type="number" id="standingHeight" step="0.1" placeholder="e.g., 183">
+          </div>
+          <div class="form-group">
+            <label>Sitting Height (cm)</label>
+            <input type="number" id="sittingHeight" step="0.1" placeholder="e.g., 92">
+          </div>
+        </div>
 
         <div class="form-group">
           <label>Armspan (cm)</label>
           <input type="number" id="armspan" step="0.1" placeholder="e.g., 185">
         </div>
       </div>
+
 
       <!-- FUNCTIONAL TESTS (PASS/PARTIAL/FAIL) -->
       <div class="section">
@@ -441,11 +442,15 @@
 
         <div id="poseResults">
           <div class="measurement-row">
-            <div class="form-group">
-              <label>Shoulder Abduction (°)</label>
-              <input type="number" id="shoulderAbduction" step="0.1" placeholder="Measured via AI" readonly style="background: #f1f5f9;">
-            </div>
-          </div>
+           <div class="form-group">
+    <label>Shoulder Abduction - Left (°)</label>
+    <input type="number" id="abductionLeft" step="0.1" placeholder="Measured via AI" readonly style="background: #f1f5f9;">
+  </div>
+  <div class="form-group">
+    <label>Shoulder Abduction - Right (°)</label>
+    <input type="number" id="abductionRight" step="0.1" placeholder="Measured via AI" readonly style="background: #f1f5f9;">
+  </div>
+</div>
           <div class="measurement-row">
             <div class="form-group">
               <label>Internal Rotation - Left (°)</label>
