@@ -706,13 +706,16 @@
       let connectionsToUse = skeletonConnections;
       let jointsToShow = null;
 
-      if (isRotation) {
-        connectionsToUse = showLeftArm ? [[7, 9]] : [[6, 8]]; 
-        jointsToShow = showLeftArm ? [7, 9] : [8, 10];
-      } else if (isSideView) {
-        connectionsToUse = showLeftArm ? [[5, 7], [5, 11]] : [[6, 8], [6, 12]]; 
-        jointsToShow = showLeftArm ? [5, 7, 11] : [6, 8, 12];
-      }
+  if (isRotation) {
+  connectionsToUse = showLeftArm ? [[7, 9]] : [[6, 8]]; 
+  jointsToShow = showLeftArm ? [7, 9] : [8, 10];
+  } else if (currentExercise === 'elevation') {
+  connectionsToUse = showLeftArm ? [[11, 5], [5, 7], [7, 9]] : [[12, 6], [6, 8], [8, 10]];
+  jointsToShow = showLeftArm ? [11, 5, 7, 9] : [12, 6, 8, 10];
+  } else if (isSideView) {
+  connectionsToUse = showLeftArm ? [[5, 7], [5, 11]] : [[6, 8], [6, 12]]; 
+  jointsToShow = showLeftArm ? [5, 7, 11] : [6, 8, 12];
+}
 
       connectionsToUse.forEach(([start, end]) => {
         const startKp = keypoints[start];
